@@ -102,6 +102,8 @@ class Pipeline
         $ext = self::ext();
         $key = '';
         foreach (self::COVER_WIDTHS as $name => $w) {
+            // PHP turns the key '480' into the integer 480: compare as strings.
+            $name = (string) $name;
             $copy = $this->resize($source, min($w, imagesx($source)));
             $out = $this->encode($copy, 82);
             $path = Store::coverPath($seriesId, $bytes, $name, $ext);

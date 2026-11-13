@@ -1,0 +1,27 @@
+.PanelsAdminList {
+  ul {
+    list-style: none;
+    margin: 6px 0 10px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  li {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    .FormControl {
+      flex: 1 1 160px;
+      min-width: 0;
+    }
+  }
+  &-name {
+    flex: 0 0 160px;
+  }
+  &-add {
+    display: flex;
+    gap: 6px;
+  }
+}

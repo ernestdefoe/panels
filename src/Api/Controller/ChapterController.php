@@ -184,6 +184,7 @@ class ChapterController extends Controller
             'seriesId' => (int) $series->id,
             'seriesSlug' => $series->slug,
             'seriesTitle' => $series->title,
+            'seriesFormat' => $series->format,
             'note' => $chapter->note,
             'transcript' => $chapter->transcript,
             'attested' => $chapter->attested_at !== null,

@@ -140,4 +140,15 @@ class PipelineTest extends TestCase
         $this->assertLessThanOrEqual(6, Pipeline::distance(Pipeline::dhash($a), Pipeline::dhash($b)));
         $this->assertGreaterThan(6, Pipeline::distance(Pipeline::dhash($a), Pipeline::dhash($c)));
     }
+
+    #[Test]
+    public function a_cover_is_stored_at_three_widths_plus_a_blurred_stand_in(): void
+    {
+        $cover = $this->pipeline()->cover($this->image(600, 800), 3);
+
+        $this->assertMatchesRegularExpression('~^s/3/cover-[0-9a-f]{16}-480\.(webp|jpg)$~', $cover['key']);
+        foreach (['240', '480', '960', 'blur'] as $size) {
+            $this->assertArrayHasKey(str_replace('-480.', "-$size.", $cover['key']), $this->store->files);
+        }
+    }
 }
