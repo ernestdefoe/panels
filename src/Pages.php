@@ -47,9 +47,18 @@ class Pages
         if ($count >= $this->archive->maxPages()) {
             throw new Refused('ernestdefoe-panels.api.refused.too_many_pages', ['limit' => $this->archive->maxPages()]);
         }
-        $position = (int) Page::query()->where('chapter_id', $chapter->id)->max('position') + 1;
 
-        $pages = $this->save($chapter, $this->pipeline->page($bytes, (int) $chapter->series_id, (int) $chapter->id, $this->wantsPublic($chapter)), $position, $name);
+        // The slow part first, with no lock held.
+        $rows = $this->pipeline->page($bytes, (int) $chapter->series_id, (int) $chapter->id, $this->wantsPublic($chapter));
+
+        // 🚨 The editor uploads three images at once: the next position is taken under a lock
+        // on the chapter's row, or two pages get the same one and merge into one page.
+        $pages = $this->db->transaction(function () use ($chapter, $rows, $name) {
+            Chapter::query()->whereKey($chapter->id)->lockForUpdate()->first(['id']);
+            $position = (int) Page::query()->where('chapter_id', $chapter->id)->max('position') + 1;
+
+            return $this->save($chapter, $rows, $position, $name);
+        });
         $this->recount($chapter);
 
         return $pages;
@@ -139,7 +148,10 @@ class Pages
                 }
                 $rows = $this->pipeline->page($bytes, (int) $chapter->series_id, (int) $chapter->id, $public);
                 unset($bytes);
-                $this->save($chapter, $rows, $import->position_base + $import->done + 1, basename((string) $name));
+                $this->db->transaction(function () use ($chapter, $rows, $name) {
+                    Chapter::query()->whereKey($chapter->id)->lockForUpdate()->first(['id']);
+                    $this->save($chapter, $rows, (int) Page::query()->where('chapter_id', $chapter->id)->max('position') + 1, basename((string) $name));
+                });
             } catch (Refused $e) {
                 $report['refused'][] = ['name' => mb_substr(basename((string) $name), 0, 150), 'key' => $e->key, 'params' => $e->params];
                 if ($e->key === 'ernestdefoe-panels.api.refused.archive_size') {
