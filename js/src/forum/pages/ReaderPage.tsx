@@ -96,6 +96,7 @@ export default class ReaderPage extends Page {
   private onMove = () => this.wake();
   private onLeave = () => this.save(true);
   private scrollTicking = false;
+  private lastTouchTap = 0;
 
   oninit(vnode: Mithril.Vnode) {
     super.oninit(vnode);
@@ -268,7 +269,14 @@ export default class ReaderPage extends Page {
   }
 
   tap(e: MouseEvent): void {
-    const x = e.clientX / window.innerWidth;
+    // A touch already handled this tap (touchEnd); the click that follows is ignored.
+    if (Date.now() - this.lastTouchTap < 600) return;
+    this.tapAt(e.clientX);
+  }
+
+  /** Thirds: left, middle (show or hide the bars), right. Which side is "next" depends on the mode. */
+  tapAt(clientX: number): void {
+    const x = clientX / window.innerWidth;
     if (this.mode === 'vertical' || !this.prefs.zones || (x > 1 / 3 && x < 2 / 3)) {
       this.chrome ? ((this.chrome = false), clearTimeout(this.hideTimer)) : this.wake();
       m.redraw();
@@ -286,11 +294,19 @@ export default class ReaderPage extends Page {
   touchEnd(e: TouchEvent): void {
     const start = this.touch;
     this.touch = null;
-    // Never while zoomed: panning a zoomed page must not turn it.
-    if (!start || this.mode === 'vertical' || (window.visualViewport?.scale ?? 1) > 1.05) return;
+    if (!start) return;
     const end = e.changedTouches[0];
     const dx = end.clientX - start.x;
     const dy = end.clientY - start.y;
+    // 🚨 A tap, handled here: iOS Safari fires no click on a plain element, so tap zones and the
+    // bars' toggle never worked from a click handler alone.
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      this.lastTouchTap = Date.now();
+      this.tapAt(end.clientX);
+      return;
+    }
+    // Never while zoomed: panning a zoomed page must not turn it.
+    if (this.mode === 'vertical' || (window.visualViewport?.scale ?? 1) > 1.05) return;
     if (Math.abs(dx) < 60 || Math.abs(dy) > 50) return;
     // A swipe to the left reveals what's on the right: the next page in ltr, the previous in rtl.
     const towardRight = dx < 0;
@@ -595,7 +611,12 @@ export default class ReaderPage extends Page {
   strip(d: Payload): Mithril.Children {
     const width = Number(app.forum.attribute('panelsStripWidth') || 800);
     return (
-      <main className="PanelsReader-stage" onclick={(e: MouseEvent) => this.tap(e)}>
+      <main
+        className="PanelsReader-stage"
+        onclick={(e: MouseEvent) => this.tap(e)}
+        ontouchstart={(e: TouchEvent) => this.touchStart(e)}
+        ontouchend={(e: TouchEvent) => this.touchEnd(e)}
+      >
         <div className="PanelsStrip" style={{ maxWidth: `${width}px` }}>
           {this.groups.map((group, i) => (
             <div className="PanelsStrip-page" id={`panels-page-${i + 1}`}>
