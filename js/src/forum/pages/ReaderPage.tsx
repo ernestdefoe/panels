@@ -93,10 +93,12 @@ export default class ReaderPage extends Page {
   private touch: { x: number; y: number } | null = null;
   private onKey = (e: KeyboardEvent) => this.key(e);
   private onScroll = () => this.scrolled();
-  private onMove = () => this.wake();
+  // iOS sends a mousemove after every tap: only a real mouse brings the bars back.
+  private onMove = () => Date.now() - this.lastTouch > 1000 && this.wake();
   private onLeave = () => this.save(true);
   private scrollTicking = false;
   private lastTouchTap = 0;
+  private lastTouch = 0;
 
   oninit(vnode: Mithril.Vnode) {
     super.oninit(vnode);
@@ -288,6 +290,7 @@ export default class ReaderPage extends Page {
   }
 
   touchStart(e: TouchEvent): void {
+    this.lastTouch = Date.now();
     this.touch = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
   }
 
