@@ -1,0 +1,101 @@
+{
+    "name": "ernestdefoe/panels",
+    "description": "Panels: a manga, webtoon and comics library and reader for Flarum 2. Series with image chapters or .cbz uploads, a phone-first reader (vertical webtoon, page, right-to-left manga), reading progress, libraries and follows, a discussion for every chapter, age gating and a copyright takedown flow.",
+    "keywords": [
+        "flarum",
+        "flarum-extension",
+        "manga",
+        "webtoon",
+        "comics",
+        "reader",
+        "cbz"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ernest Defoe",
+            "email": "ernestdefoe@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/ernestdefoe/panels",
+    "support": {
+        "issues": "https://github.com/ernestdefoe/panels/issues",
+        "source": "https://github.com/ernestdefoe/panels"
+    },
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://buymeacoffee.com/ernestdefoe"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-gd": "*",
+        "flarum/core": "^2.0"
+    },
+    "suggest": {
+        "ext-zip": ".cbz / .zip uploads and chapter downloads",
+        "flarum/tags": "Chapter discussions in a tag of your choice",
+        "flarum/gdpr": "Libraries, places and ratings in a member's data export and erasure",
+        "ernestdefoe/kiosk": "Sell series and chapters, with early access",
+        "ernestdefoe/renown": "XP for publishing and finishing chapters",
+        "ernestdefoe/spoiler-shield": "Chapter talk blurred past each member's place",
+        "ernestdefoe/page-builder": "The five widgets as Page Builder blocks",
+        "fof/forum-widgets-core": "The five widgets in FoF's widget sections (and Bespoke's zones)"
+    },
+    "autoload": {
+        "psr-4": {
+            "ErnestDefoe\\Panels\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ErnestDefoe\\Panels\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Panels",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-book-open",
+                "backgroundColor": "#a8392a",
+                "color": "#fff"
+            },
+            "optional-dependencies": [
+                "flarum/tags",
+                "flarum/gdpr",
+                "ernestdefoe/kiosk"
+            ]
+        }
+    },
+    "require-dev": {
+        "flarum/gdpr": "^2.0",
+        "flarum/phpstan": "^2.0",
+        "flarum/tags": "^2.0",
+        "flarum/testing": "^2.0"
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php",
+        "analyse:phpstan": "phpstan analyse",
+        "test:unit": "phpunit -c tests/phpunit.unit.xml"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once.",
+        "analyse:phpstan": "Run static analysis",
+        "test:unit": "Runs the archive and image security tests."
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
+}

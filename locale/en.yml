@@ -1,0 +1,88 @@
+ernestdefoe-panels:
+  api:
+    refused:
+      too_big: "This file is over the {mb} MB limit."
+      not_image: "This isn't a JPEG, PNG, WebP, AVIF or GIF image."
+      too_many_pixels: "{width} × {height} px is over the {limit}-megapixel limit."
+      damaged: "This image is damaged and couldn't be read."
+      server_memory: "This image is too large for the server's memory. Try a smaller copy."
+      archive_entries: "This archive has too many files. A chapter can have up to {limit} pages."
+      damaged_archive: "This archive is damaged and couldn't be read."
+      archive_ratio: "This archive is packed in a way that isn't allowed (some files are compressed over 100 to 1)."
+      archive_size: "Unpacked, these pages are over the {mb} MB limit for a chapter."
+      archive_empty: "This archive has no images in it."
+      too_many_pages: "A chapter can have up to {limit} pages."
+      no_zip: "This server can't open .zip files (PHP's zip extension is missing). Upload the images instead."
+      incomplete: "The upload didn't finish. Try again."
+      not_archive: "This isn't a .cbz or .zip archive."
+      no_pages: "Add at least one page before publishing."
+      no_link: "Add the link to where this chapter is hosted."
+      attest: "Confirm that you made this or have permission to post it."
+      title: "Give it a name (up to 150 characters)."
+      explicit_off: "The Explicit rating is turned off on this forum."
+      number: "Chapter numbers look like 12 or 12.5."
+      number_taken: "There's already a chapter {number} in this series."
+      link: "Links must start with https://."
+      kiosk_off: "Paid chapters need Kiosk, which isn't enabled."
+      early_date: "Choose when early access ends."
+      already_out: "This chapter is already out. Its pages can't change now."
+      rating: "Ratings are 1 to 5 stars."
+      download_limit: "You've reached today's limit of {limit} downloads."
+      slow_down: "You've sent several claims in the last hour. Try again later."
+      claim_target: "We couldn't find what this claim is about."
+      claim_incomplete: "Fill in every field and tick both statements."
+      claim_action: "Unknown action."
+      watermark: "The watermark must be a PNG of 2 MB or less."
+
+  lib:
+    chapter_number: "Chapter {number}"
+    discussion_body: "{chapter} is out."
+    format:
+      manga: Manga
+      manhwa: Manhwa
+      manhua: Manhua
+      webtoon: Webtoon
+      comic: Comic
+      other: Other
+    kiosk:
+      series: Comic series
+      chapter: Comic chapter
+    gdpr:
+      export: "Your comics library, reading places, ratings and downloads."
+      delete: "Your comics library, reading places, ratings and downloads are deleted. Series you uploaded stay."
+    widget:
+      new: New chapters
+      continue: Continue reading
+      trending: Trending
+      spotlight: Series spotlight
+      stats: Library stats
+      count: How many
+      format: Format
+      format_any: Any format
+      layout: Layout
+      layout_list: List
+      layout_covers: Covers
+      period: Period
+      period_week: This week
+      period_all: All time
+
+  email:
+    new_chapters:
+      subject: "{count, plural, one {New chapter of {series}: {number}} other {# new chapters of {series}}}"
+      html:
+        body: "{count, plural, one {Chapter {number} of {series} is out.} other {# new chapters of {series} are out, starting with chapter {number}.}}\n\n[Start reading]({url})"
+      plain:
+        body: "{count, plural, one {Chapter {number} of {series} is out.} other {# new chapters of {series} are out, starting with chapter {number}.}}\n\nStart reading: {url}"
+    takedown:
+      disabled_subject: "{target} was taken down after a copyright claim"
+      restored_subject: "{target} is back up"
+      disabled_html: "**{target}** was taken down after a copyright claim. You'll see the claim, and can file a counter-notice if you believe it's a mistake, here:\n\n[Respond to the claim]({url})"
+      disabled_plain: "{target} was taken down after a copyright claim. You can see the claim, and file a counter-notice if you believe it's a mistake, here: {url}"
+      restored_html: "**{target}** has been restored and is visible again."
+      restored_plain: "{target} has been restored and is visible again."
+    claimant:
+      subject: "Your copyright claim on {forum} (#{id})"
+      disabled: "Hello {name},\n\nThank you for your claim. {target} has been taken down on {forum}.\n\nIf the uploader files a counter-notice, we'll send it to you."
+      reject: "Hello {name},\n\nWe've looked at your claim about {target} on {forum} and haven't taken it down.\n\nReason: {reason}"
+      info: "Hello {name},\n\nWe need more information about your claim on {target} before we can act on it:\n\n{reason}\n\nReply with the details and we'll look again."
+      counter: "Hello {name},\n\nThe uploader of {target} on {forum} has filed a counter-notice. Unless you tell us within 10 business days that you've filed a court action, the moderators may restore it.\n\n{counter}"
