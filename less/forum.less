@@ -1177,30 +1177,36 @@ html:not(#x-hi) a.PanelsSpotlight-title {
 
 // ---- the reader ----
 
+// The reader is a layer over the whole forum: above the header and anything other extensions pin
+// to the screen (tickers, pets, falling leaves: all under z-index 1000), below the composer (1020)
+// so Reply from the end card works. The page under it doesn't scroll; the reader does.
 #app.Panels-reading {
-  padding-top: 0;
   .App-header,
   .App-navigation,
-  .MobileTab,
-  .MobileTab-bar,
   .App-titleControl,
   .App-backControl {
     display: none !important;
   }
-  .App-content {
-    padding: 0;
-    min-height: 100vh;
+}
+body:has(#app.Panels-reading) {
+  overflow: hidden;
+  // Mobile Tab's bar lives outside #app, at 1025.
+  .MobileTab,
+  .MobileTab-bar {
+    display: none !important;
   }
 }
-body[data-panels-bg='black'] {
+body[data-panels-bg='black'] .PanelsReader {
   background: #000;
-  #app.Panels-reading .App-content {
-    background: #000;
-  }
 }
 .PanelsReader {
-  position: relative;
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 1015;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--body-bg);
   color: var(--text-color);
   &--message,
   &-message {

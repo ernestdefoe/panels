@@ -107,7 +107,8 @@ export default class ReaderPage extends Page {
   oncreate(vnode: Mithril.VnodeDOM) {
     super.oncreate(vnode);
     document.addEventListener('keydown', this.onKey);
-    window.addEventListener('scroll', this.onScroll, { passive: true });
+    // The reader is its own scrolling layer (a fixed box over the forum), not the window.
+    this.element.addEventListener('scroll', this.onScroll, { passive: true });
     window.addEventListener('mousemove', this.onMove, { passive: true });
     window.addEventListener('pagehide', this.onLeave);
   }
@@ -116,7 +117,7 @@ export default class ReaderPage extends Page {
     super.onremove(vnode);
     this.save(true);
     document.removeEventListener('keydown', this.onKey);
-    window.removeEventListener('scroll', this.onScroll);
+    this.element.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('mousemove', this.onMove);
     window.removeEventListener('pagehide', this.onLeave);
     clearTimeout(this.hideTimer);
@@ -146,8 +147,8 @@ export default class ReaderPage extends Page {
         if (this.mode === 'vertical' && this.index > 0) {
           // Back to where the member was in the strip, once the images have their boxes.
           requestAnimationFrame(() => document.getElementById(`panels-page-${this.index + 1}`)?.scrollIntoView());
-        } else {
-          window.scrollTo(0, 0);
+        } else if (this.element) {
+          this.element.scrollTop = 0;
         }
         this.preload();
       })
