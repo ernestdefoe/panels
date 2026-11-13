@@ -289,7 +289,16 @@ export const extend = [
     .setting(() => ({ setting: s('max_pages'), type: 'number', min: 1, label: tt('settings.max_pages') }), 158)
     .setting(() => ({ setting: s('max_chapter_mb'), type: 'number', min: 1, label: tt('settings.max_chapter_mb') }), 157)
     .setting(() => ({ setting: s('max_archive_mb'), type: 'number', min: 1, label: tt('settings.max_archive_mb') }), 156)
-    .setting(() => ({ setting: s('pages_per_hour'), type: 'number', min: 1, label: tt('settings.pages_per_hour'), help: tt('settings.pages_per_hour_help') }), 155.5)
+    .setting(
+      () => ({
+        setting: s('pages_per_hour'),
+        type: 'number',
+        min: 1,
+        label: tt('settings.pages_per_hour'),
+        help: tt('settings.pages_per_hour_help'),
+      }),
+      155.5
+    )
     .setting(() => ({ setting: s('quality'), type: 'number', min: 40, max: 95, label: tt('settings.quality') }), 155)
     .setting(() => ({ setting: s('strip_width'), type: 'number', min: 400, max: 1600, label: tt('settings.strip_width') }), 154)
     .setting(
