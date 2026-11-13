@@ -12,6 +12,24 @@ A manga, webtoon and comics library and reader for Flarum 2.
 - **Widgets** for FoF Widgets (and Bespoke's zones) and Page Builder: New chapters, Continue reading, Trending, Series spotlight and Library stats.
 - Optional: **Kiosk** (paid chapters and series, early access), **Renown** (XP for publishing and finishing chapters), **Spoiler Shield** (chapter talk blurred past each member's place).
 
+![The library](screenshots/library.png)
+
+![A series](screenshots/series.png)
+
+![Right-to-left manga in a two-page spread](screenshots/reader-manga.png)
+
+<img src="screenshots/reader-webtoon-phone.png" alt="A webtoon on a phone" width="300">
+
+![The end of a chapter: the next one, follow, rate, and the chapter's discussion](screenshots/end-of-chapter.png)
+
+![Uploading a chapter: images and a .cbz, sorted and reordered](screenshots/upload.png)
+
+![A chapter's discussion](screenshots/discussion.png)
+
+![New chapters, Continue reading, Trending, Spotlight and Library stats in FoF Widgets](screenshots/widgets.png)
+
+All the series in these pictures are made up for the demo, with art drawn for it.
+
 ## Install
 
 ```sh
