@@ -16,7 +16,7 @@ use Flarum\Database\AbstractModel;
  * @property int $total
  * @property int $done
  * @property int $position_base
- * @property array{skipped?: list<string>, refused?: list<array{name:string, reason:string}>, read?: int} $report
+ * @property array{skipped?: list<string>, refused?: list<array{name:string, key:string, params?: array<string, string|int>}>, read?: int} $report
  * @property string $state
  * @property Carbon $created_at
  * @property Carbon $updated_at

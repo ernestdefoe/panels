@@ -10,7 +10,6 @@ use ErnestDefoe\Panels\Model\Page;
 use ErnestDefoe\Panels\Pages;
 use ErnestDefoe\Panels\Publisher;
 use Flarum\User\User;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -30,7 +29,6 @@ class ReaderController extends Controller
         private readonly Presenter $presenter,
         private readonly Pages $pages,
         private readonly Publisher $publisher,
-        private readonly ConnectionInterface $db,
     ) {
     }
 

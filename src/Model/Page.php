@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $bytes
  * @property string|null $color
  * @property int|null $phash
- * @property array<string, string> $variants
+ * @property array<int|string, string> $variants
  * @property string|null $alt
  * @property string|null $original_name
  * @property Chapter $chapter

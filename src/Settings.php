@@ -42,7 +42,7 @@ class Settings
      * A series' values, cleaned against the field definitions.
      *
      * @param array<string|int, mixed> $input
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     public function cleanFields(array $input): array
     {

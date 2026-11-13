@@ -13,6 +13,12 @@ parameters:
         - src
     # Implement Page Builder's and Kiosk's interfaces: only there when they're
     # installed (extend.php checks first).
+    databaseMigrationsPath: [migrations]
     excludePaths:
+        - *.blade.php
         - src/Widget
         - src/Kiosk
+    # Kiosk and flarum/tags are optional: their classes load only when they're enabled.
+    ignoreErrors:
+        - '#Ernestdefoe\\Kiosk\\#'
+        - '#Flarum\\Discussion\\Discussion::tags\(\)#'

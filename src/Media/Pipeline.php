@@ -56,7 +56,7 @@ class Pipeline
     /**
      * Store one page (or several, for a tall strip) and return the rows' attributes.
      *
-     * @return list<array{segment:int, width:int, height:int, bytes:int, color:string, phash:int, variants:array<string,string>}>
+     * @return list<array{segment:int, width:int, height:int, bytes:int, color:string, phash:int, variants:array<int|string,string>}>
      */
     public function page(string $bytes, int $seriesId, int $chapterId, bool $public): array
     {
@@ -169,7 +169,7 @@ class Pipeline
     }
 
     /**
-     * @return array{width:int, height:int, bytes:int, color:string, phash:int, variants:array<string,string>}
+     * @return array{width:int, height:int, bytes:int, color:string, phash:int, variants:array<int|string,string>}
      */
     private function storePiece(GdImage $piece, int $seriesId, int $chapterId, bool $public): array
     {
@@ -192,7 +192,7 @@ class Pipeline
             unset($copy);
             $path = Store::pagePath($seriesId, $chapterId, $out, $w, $ext);
             $this->store->put($public, $path, $out);
-            $variants[(string) $w] = $path;
+            $variants[(string) $w] = $path; // stays an int key in PHP; JSON makes it a string again
             $bytes = strlen($out);
         }
 

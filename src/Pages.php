@@ -306,7 +306,7 @@ class Pages
     }
 
     /**
-     * @param list<array{segment:int, width:int, height:int, bytes:int, color:string, phash:int, variants:array<string,string>}> $rows
+     * @param list<array{segment:int, width:int, height:int, bytes:int, color:string, phash:int, variants:array<int|string,string>}> $rows
      * @return list<Page>
      */
     private function save(Chapter $chapter, array $rows, int $position, ?string $name): array

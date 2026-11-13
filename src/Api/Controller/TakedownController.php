@@ -11,7 +11,6 @@ use ErnestDefoe\Panels\Model\Series;
 use ErnestDefoe\Panels\Model\Takedown;
 use ErnestDefoe\Panels\Notification\TakedownBlueprint;
 use ErnestDefoe\Panels\Publisher;
-use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -47,7 +46,6 @@ class TakedownController extends Controller
         private readonly Mailer $mailer,
         private readonly TranslatorInterface $translator,
         private readonly SettingsRepositoryInterface $settings,
-        private readonly UrlGenerator $url,
         private readonly ConnectionInterface $db,
     ) {
     }

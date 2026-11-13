@@ -64,7 +64,7 @@ class ImageController implements RequestHandlerInterface
 
             return new EmptyResponse(200, $headers + ['X-Accel-Redirect' => $prefix.'/'.$path]);
         }
-        if ($mode === 'apache' && method_exists($disk, 'path')) {
+        if ($mode === 'apache') {
             return new EmptyResponse(200, $headers + ['X-Sendfile' => $disk->path($path)]);
         }
 
