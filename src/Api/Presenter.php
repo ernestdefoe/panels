@@ -134,7 +134,12 @@ class Presenter
      */
     public function series(Series $series, Collection $chapters, User $actor): array
     {
-        $series->loadMissing(['user', 'editors']);
+        $series->loadMissing(['user', 'editors', 'genres']);
+        $me = $this->memberState($actor, (int) $series->id);
+        // The library's card, without what this page doesn't show (latest chapter, unread count).
+        $series->setRelation('latestChapter', null);
+        $this->progress = $me['placeChapter'] ? [(int) $series->id => $this->place($chapters, $me)] : [];
+        $this->unread = [];
         $card = $this->card($series, $actor);
         $chapterIds = $chapters->pluck('id')->all();
 
@@ -142,8 +147,8 @@ class Presenter
             ->where('user_id', $actor->id)->whereIn('chapter_id', $chapterIds)->pluck('chapter_id')->map(fn ($id) => (int) $id)->flip()->all();
         $replies = $this->db->table('discussions')->whereIn('id', $chapters->pluck('discussion_id')->filter()->all())
             ->whereNull('hidden_at')->pluck('comment_count', 'id')->all();
-        $library = $actor->isGuest() ? null : $this->db->table('panel_library')->where('user_id', $actor->id)->where('series_id', $series->id)->first(['shelf', 'notify']);
-        $mine = $actor->isGuest() ? null : $this->db->table('panel_ratings')->where('user_id', $actor->id)->where('series_id', $series->id)->value('rating');
+        $library = $me['shelf'] !== null || $me['notify'] ? (object) ['shelf' => $me['shelf'], 'notify' => $me['notify']] : null;
+        $mine = $me['rating'];
         $canEdit = $this->access->canEdit($series, $actor);
 
         return $card + [
@@ -164,6 +169,21 @@ class Presenter
             'canDownload' => $this->access->downloadLimit($actor) > 0,
             'chapters' => $chapters->map(fn (Chapter $c) => $this->chapter($c, $series, $actor, isset($read[(int) $c->id]), (int) ($replies[$c->discussion_id] ?? 0)))->values()->all(),
         ];
+    }
+
+    /**
+     * The member's place, shaped like prime()'s, from the chapters on this page (or a lookup
+     * when their place is in a chapter further down the list).
+     *
+     * @param Collection<int, Chapter> $chapters
+     * @param array{placeChapter: ?int, placePage: ?int} $me
+     * @return array{chapter_id:int, page:int, pages:int, number:string|null}
+     */
+    private function place(Collection $chapters, array $me): array
+    {
+        $chapter = $chapters->firstWhere('id', $me['placeChapter']) ?? Chapter::query()->find($me['placeChapter'], ['id', 'number', 'page_count']);
+
+        return ['chapter_id' => (int) $me['placeChapter'], 'page' => (int) $me['placePage'], 'pages' => (int) ($chapter->page_count ?? 0), 'number' => $chapter ? $chapter->label() : null];
     }
 
     /** @return array<string, mixed> */
@@ -190,6 +210,48 @@ class Presenter
             'replies' => max(0, $comments - 1),
             'read' => $read,
             'heldFor' => $this->access->isStaff($actor) ? $chapter->held_for : null,
+        ];
+    }
+
+    /**
+     * Everything about one member and one series (and maybe one chapter) in a single query:
+     * shelf, follow, their rating, their place, whether the chapter is read, and its reply count.
+     *
+     * @return array{shelf: ?string, notify: bool, rating: ?int, placeChapter: ?int, placePage: ?int, read: bool, comments: int}
+     */
+    public function memberState(User $actor, int $seriesId, ?int $chapterId = null, ?int $discussionId = null): array
+    {
+        $empty = ['shelf' => null, 'notify' => false, 'rating' => null, 'placeChapter' => null, 'placePage' => null, 'read' => false, 'comments' => 0];
+        $uid = (int) $actor->id;
+        $q = $this->db->query()->selectRaw('1 as one');
+        if (! $actor->isGuest()) {
+            $lib = fn (string $col) => $this->db->table('panel_library')->where('user_id', $uid)->where('series_id', $seriesId)->select($col)->limit(1);
+            $prog = fn (string $col) => $this->db->table('panel_progress')->where('user_id', $uid)->where('series_id', $seriesId)->select($col)->limit(1);
+            $q->selectSub($lib('shelf'), 'shelf')
+                ->selectSub($lib('notify'), 'notify')
+                ->selectSub($this->db->table('panel_ratings')->where('user_id', $uid)->where('series_id', $seriesId)->select('rating')->limit(1), 'rating')
+                ->selectSub($prog('chapter_id'), 'place_chapter')
+                ->selectSub($prog('page'), 'place_page');
+            if ($chapterId) {
+                $q->selectSub($this->db->table('panel_reads')->where('user_id', $uid)->where('chapter_id', $chapterId)->selectRaw('COUNT(*)'), 'is_read');
+            }
+        }
+        if ($discussionId) {
+            $q->selectSub($this->db->table('discussions')->where('id', $discussionId)->whereNull('hidden_at')->select('comment_count')->limit(1), 'comments');
+        }
+        if ($actor->isGuest() && ! $discussionId) {
+            return $empty;
+        }
+        $row = (array) $q->first();
+
+        return [
+            'shelf' => $row['shelf'] ?? null,
+            'notify' => (bool) ($row['notify'] ?? false),
+            'rating' => isset($row['rating']) ? (int) $row['rating'] : null,
+            'placeChapter' => isset($row['place_chapter']) ? (int) $row['place_chapter'] : null,
+            'placePage' => isset($row['place_page']) ? (int) $row['place_page'] : null,
+            'read' => (bool) ($row['is_read'] ?? false),
+            'comments' => (int) ($row['comments'] ?? 0),
         ];
     }
 

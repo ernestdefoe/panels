@@ -23,11 +23,13 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  */
 class Access
 {
-    /** @var array<int, list<int>> series ids a member co-edits, per member */
-    private array $edits = [];
-
-    /** @var array<string, list<int>> Kiosk holdings, per member and type */
-    private array $bought = [];
+    /**
+     * Per member object, so a request asks once however many places build an Access, and a
+     * long-running worker never keeps another request's answer.
+     *
+     * @var \WeakMap<User, array<string, list<int>>>|null
+     */
+    private static ?\WeakMap $memo = null;
 
     public function __construct(
         private readonly SettingsRepositoryInterface $settings,
@@ -97,8 +99,8 @@ class Access
             return [];
         }
 
-        return $this->edits[$actor->id] ??= $this->db->table('panel_series_editors')
-            ->where('user_id', $actor->id)->pluck('series_id')->map(fn ($id) => (int) $id)->all();
+        return $this->memo($actor, 'edits', fn () => $this->db->table('panel_series_editors')
+            ->where('user_id', $actor->id)->pluck('series_id')->map(fn ($id) => (int) $id)->all());
     }
 
     public function canEdit(Series $series, User $actor): bool
@@ -239,7 +241,23 @@ class Access
             return [];
         }
 
-        return $this->bought[$actor->id.':'.$type] ??= array_map('intval', resolve(\Ernestdefoe\Kiosk\Service\Access::class)->ids($actor, $type));
+        return $this->memo($actor, 'kiosk:'.$type, fn () => array_map('intval', resolve(\Ernestdefoe\Kiosk\Service\Access::class)->ids($actor, $type)));
+    }
+
+    /**
+     * @param callable(): list<int> $load
+     * @return list<int>
+     */
+    private function memo(User $actor, string $key, callable $load): array
+    {
+        self::$memo ??= new \WeakMap();
+        $mine = self::$memo[$actor] ?? [];
+        if (! array_key_exists($key, $mine)) {
+            $mine[$key] = $load();
+            self::$memo[$actor] = $mine;
+        }
+
+        return $mine[$key];
     }
 
     public function kiosk(): bool

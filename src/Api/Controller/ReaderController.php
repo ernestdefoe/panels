@@ -61,11 +61,7 @@ class ReaderController extends Controller
         $prev = (clone $listed)->where('number', '<', $chapter->number)->orderByDesc('number')->first(['id', 'number', 'title']);
         $next = (clone $listed)->where('number', '>', $chapter->number)->orderBy('number')->first(['id', 'number', 'title']);
 
-        $read = ! $actor->isGuest() && $this->db->table('panel_reads')->where('user_id', $actor->id)->where('chapter_id', $chapter->id)->exists();
-        $place = $actor->isGuest() ? null : $this->db->table('panel_progress')->where('user_id', $actor->id)->where('series_id', $series->id)->first(['chapter_id', 'page']);
-        $comments = $chapter->discussion_id ? (int) $this->db->table('discussions')->where('id', $chapter->discussion_id)->whereNull('hidden_at')->value('comment_count') : 0;
-
-        $this->presenter->prime(collect([$series]), $actor);
+        $me = $this->presenter->memberState($actor, (int) $series->id, (int) $chapter->id, $chapter->discussion_id ? (int) $chapter->discussion_id : null);
         $pages = $refusal === null && $chapter->source === 'upload'
             ? $this->pages->present($chapter, Page::query()->where('chapter_id', $chapter->id)->orderBy('position')->orderBy('segment')->get(), $actor)
             : [];
@@ -73,15 +69,22 @@ class ReaderController extends Controller
         $neighbour = fn (?Chapter $c) => $c ? ['id' => (int) $c->id, 'number' => $c->label(), 'title' => $c->title] : null;
 
         return $this->json([
-            'series' => $this->presenter->card($series, $actor) + [
+            // The reader shows little of the series: no genres, counts or the library's extras.
+            'series' => [
+                'id' => (int) $series->id,
+                'slug' => $series->slug,
+                'title' => $series->title,
+                'format' => $series->format,
+                'contentRating' => $series->content_rating,
+                'cover' => $this->presenter->cover($series, $actor),
                 'readingMode' => $series->reading_mode,
                 'canEdit' => $this->access->canEdit($series, $actor),
                 'canRate' => $actor->hasPermission('panels.rate'),
                 'canDownload' => $refusal === null && $this->access->downloadLimit($actor) > 0,
-                'library' => $actor->isGuest() ? null : $this->db->table('panel_library')->where('user_id', $actor->id)->where('series_id', $series->id)->first(['shelf', 'notify']),
-                'myRating' => $actor->isGuest() ? null : $this->db->table('panel_ratings')->where('user_id', $actor->id)->where('series_id', $series->id)->value('rating'),
+                'library' => $me['shelf'] !== null || $me['notify'] ? ['shelf' => $me['shelf'], 'notify' => $me['notify']] : null,
+                'myRating' => $me['rating'],
             ],
-            'chapter' => $this->presenter->chapter($chapter, $series, $actor, $read, $comments) + [
+            'chapter' => $this->presenter->chapter($chapter, $series, $actor, $me['read'], $me['comments']) + [
                 'note' => $refusal === null ? $chapter->note : null,
                 'transcript' => $refusal === null ? $chapter->transcript : null,
             ],
@@ -90,7 +93,7 @@ class ReaderController extends Controller
             'pages' => $pages,
             'prev' => $neighbour($prev),
             'next' => $neighbour($next),
-            'place' => $place && (int) $place->chapter_id === (int) $chapter->id ? (int) $place->page : null,
+            'place' => $me['placeChapter'] === (int) $chapter->id ? $me['placePage'] : null,
         ]);
     }
 }

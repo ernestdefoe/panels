@@ -39,8 +39,6 @@ class SeriesShowController extends Controller
             ->offset(($page - 1) * self::CHAPTERS)->limit(self::CHAPTERS + 1)->get();
         $more = $chapters->count() > self::CHAPTERS;
 
-        $this->presenter->prime(collect([$series]), $actor);
-
         return $this->json(['data' => $this->presenter->series($series, $chapters->take(self::CHAPTERS)->values(), $actor), 'hasMoreChapters' => $more]);
     }
 
