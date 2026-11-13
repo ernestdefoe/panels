@@ -1328,7 +1328,8 @@ body[data-panels-bg='black'] .PanelsReader {
     justify-content: center;
     padding: 0;
     user-select: none;
-    touch-action: pan-x pan-y pinch-zoom;
+    // Horizontal swipes are ours (pages); vertical panning and pinch-zoom stay the browser's.
+    touch-action: pan-y pinch-zoom;
   }
   &-pages {
     display: flex;
