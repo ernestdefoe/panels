@@ -3,7 +3,7 @@ import Link from 'flarum/common/components/Link';
 import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
 import type Mithril from 'mithril';
-import { type Cover, type SeriesCard, seriesHref, send, short, t, tx , icon } from '../util';
+import { type Cover, type SeriesCard, seriesHref, send, short, t, tx, icon } from '../util';
 
 /*
  * Small pieces the pages share. Plain functions wrapped as { view } objects: a bare function in
@@ -16,7 +16,11 @@ export const CoverArt = {
     const { cover, color, title, size = 'medium' } = vnode.attrs;
     return (
       <span className={'PanelsCover' + (cover?.blurred ? ' is-blurred' : '')} style={{ backgroundColor: color || undefined }}>
-        {cover ? <img src={cover[size]} alt={cover.blurred ? '' : tx('cover_of', { title })} loading="lazy" decoding="async" /> : <span className="PanelsCover-empty">{icon('fas fa-book-open')}</span>}
+        {cover ? (
+          <img src={cover[size]} alt={cover.blurred ? '' : tx('cover_of', { title })} loading="lazy" decoding="async" />
+        ) : (
+          <span className="PanelsCover-empty">{icon('fas fa-book-open')}</span>
+        )}
         {cover?.blurred ? (
           <span className="PanelsCover-gate">
             <strong>18+</strong>
@@ -139,7 +143,9 @@ export const Refusal = {
     }
     return (
       <div className={`PanelsRefusal PanelsRefusal--${refusal}`} role="status">
-        <span className="PanelsRefusal-icon">{icon(refusal === 'paid' ? 'fas fa-lock' : refusal === 'unreleased' ? 'far fa-clock' : 'fas fa-eye-slash')}</span>
+        <span className="PanelsRefusal-icon">
+          {icon(refusal === 'paid' ? 'fas fa-lock' : refusal === 'unreleased' ? 'far fa-clock' : 'fas fa-eye-slash')}
+        </span>
         <h2>{t(`refusal.${refusal}.title`)}</h2>
         <p>{t(`refusal.${refusal}.body`)}</p>
         {action}

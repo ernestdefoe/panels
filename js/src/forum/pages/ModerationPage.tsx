@@ -86,12 +86,17 @@ export default class ModerationPage extends Page {
               <Link className="Button" href={readerHref(c.seriesSlug, c.number)}>
                 {t('moderation.preview')}
               </Link>
-              <Button className="Button Button--primary" onclick={() => send('PATCH', `chapters/${c.id}`, { action: 'approve' }).then(() => this.load())}>
+              <Button
+                className="Button Button--primary"
+                onclick={() => send('PATCH', `chapters/${c.id}`, { action: 'approve' }).then(() => this.load())}
+              >
                 {t('moderation.approve')}
               </Button>
               <Button
                 className="Button Button--danger"
-                onclick={() => window.confirm(tx('moderation.remove_confirm')) && send('PATCH', `chapters/${c.id}`, { action: 'remove' }).then(() => this.load())}
+                onclick={() =>
+                  window.confirm(tx('moderation.remove_confirm')) && send('PATCH', `chapters/${c.id}`, { action: 'remove' }).then(() => this.load())
+                }
               >
                 {t('moderation.remove')}
               </Button>
@@ -169,11 +174,7 @@ export default class ModerationPage extends Page {
                   <div className="PanelsFacts-row">
                     <dt>{t('moderation.uploader')}</dt>
                     <dd>
-                      {c.uploader ? (
-                        <Link href={app.route('user', { username: c.uploader.username })}>{c.uploader.username}</Link>
-                      ) : (
-                        '—'
-                      )}
+                      {c.uploader ? <Link href={app.route('user', { username: c.uploader.username })}>{c.uploader.username}</Link> : '—'}
                       {c.uploader ? ` · ${tx('moderation.strikes', { count: c.uploader.strikes })}` : ''}
                       {c.attestedAt ? ` · ${tx('moderation.attested', { date: new Date(c.attestedAt).toLocaleDateString() })}` : ''}
                     </dd>
@@ -199,7 +200,10 @@ export default class ModerationPage extends Page {
                 </dl>
                 <div className="PanelsRow-actions">
                   {c.seriesSlug ? (
-                    <Link className="Button" href={c.chapterNumber ? readerHref(c.seriesSlug, c.chapterNumber) : app.route('panels.series', { slug: c.seriesSlug })}>
+                    <Link
+                      className="Button"
+                      href={c.chapterNumber ? readerHref(c.seriesSlug, c.chapterNumber) : app.route('panels.series', { slug: c.seriesSlug })}
+                    >
                       {t('moderation.view')}
                     </Link>
                   ) : null}

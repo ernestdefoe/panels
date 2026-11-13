@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import Link from 'flarum/common/components/Link';
 import humanTime from 'flarum/common/helpers/humanTime';
 import type Mithril from 'mithril';
-import { type SeriesCard, get, readerHref, seriesHref, short, t, tx , icon } from '../util';
+import { type SeriesCard, get, readerHref, seriesHref, short, t, tx, icon } from '../util';
 
 export type Kind = 'new' | 'continue' | 'trending' | 'spotlight' | 'stats';
 
@@ -40,7 +40,10 @@ const MiniCover = {
   view(vnode: Mithril.Vnode<{ s: SeriesCard; big?: boolean }>) {
     const { s, big } = vnode.attrs;
     return (
-      <span className={'PanelsMini-cover' + (big ? ' is-big' : '') + (s.cover?.blurred ? ' is-blurred' : '')} style={{ backgroundColor: s.coverColor || undefined }}>
+      <span
+        className={'PanelsMini-cover' + (big ? ' is-big' : '') + (s.cover?.blurred ? ' is-blurred' : '')}
+        style={{ backgroundColor: s.coverColor || undefined }}
+      >
         {s.cover ? <img src={big ? s.cover.medium : s.cover.small} alt="" loading="lazy" decoding="async" /> : null}
       </span>
     );
@@ -54,7 +57,8 @@ export default class PanelsWidget {
     const body = this.body(kind, count, settings);
     // Nothing to show: nothing at all (staff get a hint, so a placed widget isn't a mystery).
     if (body === null) return null;
-    if (body === false) return app.forum.attribute('panelsCanModerate') ? <div className="PanelsWidget PanelsWidget--empty">{t('widget.empty')}</div> : null;
+    if (body === false)
+      return app.forum.attribute('panelsCanModerate') ? <div className="PanelsWidget PanelsWidget--empty">{t('widget.empty')}</div> : null;
     const title = (
       <h3 className="PanelsWidget-title">
         {icon(ICONS[kind])} {tx(`widget.${kind}`)}
@@ -133,7 +137,9 @@ export default class PanelsWidget {
                     <span className="PanelsBar PanelsBar--thin" aria-hidden="true">
                       <span style={{ width: `${pct}%` }} />
                     </span>
-                    <span className="PanelsMuted">{p ? t('place_short', { chapter: short(s.format, p.number), page: p.page, pages: p.pages }) : null}</span>
+                    <span className="PanelsMuted">
+                      {p ? t('place_short', { chapter: short(s.format, p.number), page: p.page, pages: p.pages }) : null}
+                    </span>
                   </span>
                 </Link>
               </li>
@@ -144,7 +150,11 @@ export default class PanelsWidget {
     }
 
     if (kind === 'trending') {
-      const rows: SeriesCard[] | null = fetchOnce('series', { sort: settings.period === 'all' ? 'reads' : 'trending', limit: count, filter: format ? { format } : {} });
+      const rows: SeriesCard[] | null = fetchOnce('series', {
+        sort: settings.period === 'all' ? 'reads' : 'trending',
+        limit: count,
+        filter: format ? { format } : {},
+      });
       if (!rows) return null;
       if (!rows.length) return false;
       return (

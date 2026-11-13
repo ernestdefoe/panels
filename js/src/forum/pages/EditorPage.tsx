@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
-import { errorText, get, label, long, readerHref, send, seriesHref, t, tx, upload , icon } from '../util';
+import { errorText, get, label, long, readerHref, send, seriesHref, t, tx, upload, icon } from '../util';
 import { PageStructure } from './core';
 
 interface EditorPageData {
@@ -73,7 +73,8 @@ export default class EditorPage extends Page {
   pending: Pending[] = [];
   queue: Array<{ file: File; item: Pending }> = [];
   running = 0;
-  importing: { done: number; total: number; current: string | null; skipped: string[]; refused: Array<{ name: string; message: string }> } | null = null;
+  importing: { done: number; total: number; current: string | null; skipped: string[]; refused: Array<{ name: string; message: string }> } | null =
+    null;
   dragFrom: number | null = null;
   dropping = false;
   private seq = 0;
@@ -269,7 +270,8 @@ export default class EditorPage extends Page {
   crumbs(slug: string, title: string): Mithril.Children {
     return (
       <nav className="PanelsCrumbs" aria-label={tx('breadcrumb')}>
-        <Link href={app.route('panels')}>{label()}</Link> › <Link href={seriesHref(slug)}>{title}</Link> › <span>{this.chapter ? long(this.chapter.seriesFormat, this.chapter.number) : t('upload.new')}</span>
+        <Link href={app.route('panels')}>{label()}</Link> › <Link href={seriesHref(slug)}>{title}</Link> ›{' '}
+        <span>{this.chapter ? long(this.chapter.seriesFormat, this.chapter.number) : t('upload.new')}</span>
       </nav>
     );
   }
@@ -286,16 +288,35 @@ export default class EditorPage extends Page {
           <div className="PanelsForm-row">
             <div className="Form-group">
               <label for="panels-number">{t('upload.number')}</label>
-              <input id="panels-number" className="FormControl" inputmode="decimal" required value={this.number} oninput={(e: InputEvent) => (this.number = (e.target as HTMLInputElement).value)} />
+              <input
+                id="panels-number"
+                className="FormControl"
+                inputmode="decimal"
+                required
+                value={this.number}
+                oninput={(e: InputEvent) => (this.number = (e.target as HTMLInputElement).value)}
+              />
             </div>
             <div className="Form-group">
               <label for="panels-volume">{t('upload.volume')}</label>
-              <input id="panels-volume" className="FormControl" inputmode="numeric" value={this.volume} oninput={(e: InputEvent) => (this.volume = (e.target as HTMLInputElement).value)} />
+              <input
+                id="panels-volume"
+                className="FormControl"
+                inputmode="numeric"
+                value={this.volume}
+                oninput={(e: InputEvent) => (this.volume = (e.target as HTMLInputElement).value)}
+              />
             </div>
           </div>
           <div className="Form-group">
             <label for="panels-ctitle">{t('upload.chapter_title')}</label>
-            <input id="panels-ctitle" className="FormControl" maxlength={150} value={this.chapterTitle} oninput={(e: InputEvent) => (this.chapterTitle = (e.target as HTMLInputElement).value)} />
+            <input
+              id="panels-ctitle"
+              className="FormControl"
+              maxlength={150}
+              value={this.chapterTitle}
+              oninput={(e: InputEvent) => (this.chapterTitle = (e.target as HTMLInputElement).value)}
+            />
           </div>
           <Button type="submit" className="Button Button--primary" loading={this.saving}>
             {t('upload.continue')}
@@ -347,7 +368,14 @@ export default class EditorPage extends Page {
       <div className="PanelsCard">
         <div className="Form-group">
           <label for="panels-ext">{t('upload.external_url')}</label>
-          <input id="panels-ext" className="FormControl" type="url" placeholder="https://" value={c.externalUrl || ''} onchange={(e: Event) => this.patch({ externalUrl: (e.target as HTMLInputElement).value })} />
+          <input
+            id="panels-ext"
+            className="FormControl"
+            type="url"
+            placeholder="https://"
+            value={c.externalUrl || ''}
+            onchange={(e: Event) => this.patch({ externalUrl: (e.target as HTMLInputElement).value })}
+          />
           <p className="helpText">{t('upload.external_help')}</p>
         </div>
         <Button className="Button Button--link" onclick={() => this.patch({ source: 'upload' })}>
@@ -415,7 +443,9 @@ export default class EditorPage extends Page {
               </span>
             ) : null}
             {imp.total && imp.current ? <span className="PanelsMuted">{t('upload.keep_open', { name: imp.current })}</span> : null}
-            {imp.skipped?.length ? <span className="PanelsMuted">{t('upload.skipped', { count: imp.skipped.length, names: imp.skipped.slice(0, 4).join(', ') })}</span> : null}
+            {imp.skipped?.length ? (
+              <span className="PanelsMuted">{t('upload.skipped', { count: imp.skipped.length, names: imp.skipped.slice(0, 4).join(', ') })}</span>
+            ) : null}
             {(imp.refused || []).map((r) => (
               <span className="PanelsError">
                 {r.name}: {r.message}
@@ -452,7 +482,11 @@ export default class EditorPage extends Page {
               }}
             >
               <span className="PanelsThumb-art">
-                <img src={p.sources[Object.keys(p.sources).sort((a, b) => Number(a) - Number(b))[0]]} alt={tx('reader.page_alt', { page: i + 1 })} loading="lazy" />
+                <img
+                  src={p.sources[Object.keys(p.sources).sort((a, b) => Number(a) - Number(b))[0]]}
+                  alt={tx('reader.page_alt', { page: i + 1 })}
+                  loading="lazy"
+                />
                 <span className="PanelsThumb-n">{i + 1}</span>
               </span>
               <span className="PanelsThumb-name">{p.name || '—'}</span>
@@ -514,20 +548,39 @@ export default class EditorPage extends Page {
         <div className="PanelsForm-row">
           <div className="Form-group">
             <label for="panels-n">{t('upload.number')}</label>
-            <input id="panels-n" className="FormControl" value={c.number} onchange={(e: Event) => this.patch({ number: (e.target as HTMLInputElement).value })} />
+            <input
+              id="panels-n"
+              className="FormControl"
+              value={c.number}
+              onchange={(e: Event) => this.patch({ number: (e.target as HTMLInputElement).value })}
+            />
           </div>
           <div className="Form-group">
             <label for="panels-v">{t('upload.volume')}</label>
-            <input id="panels-v" className="FormControl" value={c.volume ?? ''} onchange={(e: Event) => this.patch({ volume: (e.target as HTMLInputElement).value })} />
+            <input
+              id="panels-v"
+              className="FormControl"
+              value={c.volume ?? ''}
+              onchange={(e: Event) => this.patch({ volume: (e.target as HTMLInputElement).value })}
+            />
           </div>
         </div>
         <div className="Form-group">
           <label for="panels-t">{t('upload.chapter_title')}</label>
-          <input id="panels-t" className="FormControl" value={c.title || ''} onchange={(e: Event) => this.patch({ title: (e.target as HTMLInputElement).value })} />
+          <input
+            id="panels-t"
+            className="FormControl"
+            value={c.title || ''}
+            onchange={(e: Event) => this.patch({ title: (e.target as HTMLInputElement).value })}
+          />
         </div>
         <div className="Form-group">
           <label for="panels-r">{t('upload.rating')}</label>
-          <select id="panels-r" className="FormControl" onchange={(e: Event) => this.patch({ contentRating: (e.target as HTMLSelectElement).value || null })}>
+          <select
+            id="panels-r"
+            className="FormControl"
+            onchange={(e: Event) => this.patch({ contentRating: (e.target as HTMLSelectElement).value || null })}
+          >
             <option value="" selected={!c.contentRating}>
               {t('upload.rating_series')}
             </option>
@@ -541,7 +594,11 @@ export default class EditorPage extends Page {
         {kiosk ? (
           <div className="Form-group">
             <label for="panels-a">{t('upload.access')}</label>
-            <select id="panels-a" className="FormControl" onchange={(e: Event) => this.patch({ access: (e.target as HTMLSelectElement).value, earlyAccessUntil: c.earlyAccessUntil })}>
+            <select
+              id="panels-a"
+              className="FormControl"
+              onchange={(e: Event) => this.patch({ access: (e.target as HTMLSelectElement).value, earlyAccessUntil: c.earlyAccessUntil })}
+            >
               {['free', 'paid', 'early'].map((a) => (
                 <option value={a} selected={c.access === a}>
                   {t(`upload.access_${a}`)}
@@ -562,12 +619,25 @@ export default class EditorPage extends Page {
         ) : null}
         <div className="Form-group">
           <label for="panels-note">{t('upload.note')}</label>
-          <textarea id="panels-note" className="FormControl" rows={3} maxlength={3000} value={c.note || ''} onchange={(e: Event) => this.patch({ note: (e.target as HTMLTextAreaElement).value })} />
+          <textarea
+            id="panels-note"
+            className="FormControl"
+            rows={3}
+            maxlength={3000}
+            value={c.note || ''}
+            onchange={(e: Event) => this.patch({ note: (e.target as HTMLTextAreaElement).value })}
+          />
           <p className="helpText">{t('upload.note_help')}</p>
         </div>
         <details className="Form-group">
           <summary>{t('upload.transcript')}</summary>
-          <textarea className="FormControl" rows={5} value={c.transcript || ''} aria-label={tx('upload.transcript')} onchange={(e: Event) => this.patch({ transcript: (e.target as HTMLTextAreaElement).value })} />
+          <textarea
+            className="FormControl"
+            rows={5}
+            value={c.transcript || ''}
+            aria-label={tx('upload.transcript')}
+            onchange={(e: Event) => this.patch({ transcript: (e.target as HTMLTextAreaElement).value })}
+          />
           <p className="helpText">{t('upload.transcript_help')}</p>
         </details>
         {!out ? (
@@ -581,7 +651,13 @@ export default class EditorPage extends Page {
                 <input type="radio" name="panels-when" checked={this.when === 'later'} onchange={() => (this.when = 'later')} /> {t('upload.later')}
               </label>
               {this.when === 'later' ? (
-                <input className="FormControl" type="datetime-local" aria-label={tx('upload.later')} value={this.at} oninput={(e: InputEvent) => (this.at = (e.target as HTMLInputElement).value)} />
+                <input
+                  className="FormControl"
+                  type="datetime-local"
+                  aria-label={tx('upload.later')}
+                  value={this.at}
+                  oninput={(e: InputEvent) => (this.at = (e.target as HTMLInputElement).value)}
+                />
               ) : null}
             </fieldset>
             <label className="PanelsAttest">
@@ -600,7 +676,18 @@ export default class EditorPage extends Page {
               onclick={() =>
                 this.patch({ attest: true, action: 'publish', at: this.when === 'later' ? new Date(this.at).toISOString() : null }).then(() => {
                   const ch = this.chapter!;
-                  app.alerts.show({ type: 'success' }, tx(ch.state === 'pending' ? 'upload.done_pending' : ch.state === 'held' ? 'upload.done_held' : ch.scheduled ? 'upload.done_scheduled' : 'upload.done_published'));
+                  app.alerts.show(
+                    { type: 'success' },
+                    tx(
+                      ch.state === 'pending'
+                        ? 'upload.done_pending'
+                        : ch.state === 'held'
+                          ? 'upload.done_held'
+                          : ch.scheduled
+                            ? 'upload.done_scheduled'
+                            : 'upload.done_published'
+                    )
+                  );
                   m.route.set(seriesHref(ch.seriesSlug));
                 })
               }
@@ -610,7 +697,9 @@ export default class EditorPage extends Page {
             {c.state === 'draft' ? (
               <Button
                 className="Button Button--link PanelsDanger"
-                onclick={() => window.confirm(tx('upload.delete_confirm')) && send('DELETE', `chapters/${c.id}`).then(() => m.route.set(seriesHref(c.seriesSlug)))}
+                onclick={() =>
+                  window.confirm(tx('upload.delete_confirm')) && send('DELETE', `chapters/${c.id}`).then(() => m.route.set(seriesHref(c.seriesSlug)))
+                }
               >
                 {t('upload.delete')}
               </Button>

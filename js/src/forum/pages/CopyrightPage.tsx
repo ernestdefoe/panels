@@ -28,7 +28,8 @@ export default class CopyrightPage extends Page {
     this.targetType = m.route.param('type') === 'series' ? 'series' : 'chapter';
     this.targetId = Number(m.route.param('id')) || 0;
     this.counterId = Number(m.route.param('counter')) || 0;
-    if (this.targetId) this.form.urls = document.referrer && document.referrer.startsWith(app.forum.attribute('baseUrl') as string) ? document.referrer : '';
+    if (this.targetId)
+      this.form.urls = document.referrer && document.referrer.startsWith(app.forum.attribute('baseUrl') as string) ? document.referrer : '';
   }
 
   field(key: string, labelKey: string, opts: { type?: string; rows?: number; help?: string } = {}): Mithril.Children {
@@ -37,9 +38,23 @@ export default class CopyrightPage extends Page {
       <div className="Form-group">
         <label for={id}>{t(labelKey)}</label>
         {opts.rows ? (
-          <textarea id={id} className="FormControl" rows={opts.rows} required value={this.form[key]} oninput={(e: InputEvent) => (this.form[key] = (e.target as HTMLTextAreaElement).value)} />
+          <textarea
+            id={id}
+            className="FormControl"
+            rows={opts.rows}
+            required
+            value={this.form[key]}
+            oninput={(e: InputEvent) => (this.form[key] = (e.target as HTMLTextAreaElement).value)}
+          />
         ) : (
-          <input id={id} className="FormControl" type={opts.type || 'text'} required={key !== 'org'} value={this.form[key]} oninput={(e: InputEvent) => (this.form[key] = (e.target as HTMLInputElement).value)} />
+          <input
+            id={id}
+            className="FormControl"
+            type={opts.type || 'text'}
+            required={key !== 'org'}
+            value={this.form[key]}
+            oninput={(e: InputEvent) => (this.form[key] = (e.target as HTMLInputElement).value)}
+          />
         )}
         {opts.help ? <p className="helpText">{t(opts.help)}</p> : null}
       </div>
@@ -47,7 +62,9 @@ export default class CopyrightPage extends Page {
   }
 
   view() {
-    const agent = [app.forum.attribute('panelsAgentName'), app.forum.attribute('panelsAgentAddress'), app.forum.attribute('panelsAgentEmail')].filter(Boolean) as string[];
+    const agent = [app.forum.attribute('panelsAgentName'), app.forum.attribute('panelsAgentAddress'), app.forum.attribute('panelsAgentEmail')].filter(
+      Boolean
+    ) as string[];
     return (
       <PageStructure className="PanelsCopyright">
         <nav className="PanelsCrumbs" aria-label={tx('breadcrumb')}>
@@ -63,7 +80,13 @@ export default class CopyrightPage extends Page {
         ) : app.forum.attribute('panelsCanModerate') ? (
           <div className="PanelsNotice PanelsNotice--danger">{t('copyright.no_agent')}</div>
         ) : null}
-        {this.sent ? <div className="PanelsNotice">{t(this.counterId ? 'copyright.counter_sent' : 'copyright.sent')}</div> : this.counterId ? this.counterForm() : this.claimForm()}
+        {this.sent ? (
+          <div className="PanelsNotice">{t(this.counterId ? 'copyright.counter_sent' : 'copyright.sent')}</div>
+        ) : this.counterId ? (
+          this.counterForm()
+        ) : (
+          this.claimForm()
+        )}
       </PageStructure>
     );
   }
@@ -118,7 +141,13 @@ export default class CopyrightPage extends Page {
   submitClaim(e: SubmitEvent): void {
     e.preventDefault();
     this.busy = true;
-    send('POST', 'takedowns', { ...this.form, targetType: this.targetType, targetId: this.targetId, goodFaith: this.goodFaith, accurate: this.accurate })
+    send('POST', 'takedowns', {
+      ...this.form,
+      targetType: this.targetType,
+      targetId: this.targetId,
+      goodFaith: this.goodFaith,
+      accurate: this.accurate,
+    })
       .then(() => (this.sent = true))
       .catch(() => {})
       .finally(() => ((this.busy = false), m.redraw()));

@@ -6,7 +6,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import humanTime from 'flarum/common/helpers/humanTime';
 import Avatar from 'flarum/common/components/Avatar';
 import type Mithril from 'mithril';
-import { type GuestPlace, type SeriesCard, api, get, long, readerHref, send, seriesHref, short, store, t, tx , icon } from '../util';
+import { type GuestPlace, type SeriesCard, api, get, long, readerHref, send, seriesHref, short, store, t, tx, icon } from '../util';
 import { Refusal, StarPicker } from './bits';
 
 interface PageData {
@@ -423,15 +423,17 @@ export default class ReaderPage extends Page {
       app.modal.show(() => import('flarum/forum/components/LogInModal'));
       return;
     }
-    Promise.all([app.store.find<any>('discussions', String(id)), import('flarum/forum/utils/DiscussionControls')]).then(([discussion, controls]: any) =>
-      (controls.default || controls).replyAction.call(discussion, true, false)
+    Promise.all([app.store.find<any>('discussions', String(id)), import('flarum/forum/utils/DiscussionControls')]).then(
+      ([discussion, controls]: any) => (controls.default || controls).replyAction.call(discussion, true, false)
     );
   }
 
   openPicker(): void {
     if (this.picker || !this.data) return;
     get<any>(`series/${this.data.series.slug}`, { order: 'asc' }).then((r) => {
-      this.picker = r.data.chapters.filter((c: any) => c.state === 'published' && !c.scheduled).map((c: any) => ({ number: c.number, title: c.title }));
+      this.picker = r.data.chapters
+        .filter((c: any) => c.state === 'published' && !c.scheduled)
+        .map((c: any) => ({ number: c.number, title: c.title }));
       m.redraw();
     });
   }
@@ -706,7 +708,9 @@ export default class ReaderPage extends Page {
               {s.canRate ? (
                 <StarPicker
                   value={s.myRating}
-                  onchange={(v: number | null) => send<any>('POST', `series/${s.id}/rating`, { rating: v }).then((r) => ((s.myRating = r.myRating), m.redraw()))}
+                  onchange={(v: number | null) =>
+                    send<any>('POST', `series/${s.id}/rating`, { rating: v }).then((r) => ((s.myRating = r.myRating), m.redraw()))
+                  }
                 />
               ) : null}
             </div>
@@ -764,7 +768,9 @@ export default class ReaderPage extends Page {
           <>
             <h2 className="PanelsEyebrow">{t('reader.fit')}</h2>
             <div className="PanelsReader-choices">
-              {(['height', 'width', 'original'] as const).map((fit) => choice(this.prefs.fit === fit, t(`reader.fit_${fit}`), () => this.setPref('fit', fit)))}
+              {(['height', 'width', 'original'] as const).map((fit) =>
+                choice(this.prefs.fit === fit, t(`reader.fit_${fit}`), () => this.setPref('fit', fit))
+              )}
             </div>
             <label className="PanelsReader-toggle">
               <input type="checkbox" checked={this.prefs.spread} onchange={() => this.setPref('spread', !this.prefs.spread)} />

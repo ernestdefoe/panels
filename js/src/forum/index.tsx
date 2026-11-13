@@ -7,7 +7,7 @@ import Notification from 'flarum/forum/components/Notification';
 import type Mithril from 'mithril';
 import PanelsWidget from './widgets/Widget';
 import { placedInFof, registerFof, registerPageBuilder } from './widgets/hosts';
-import { type GuestPlace, label, long, readerHref, seriesHref, store, t, tx , icon } from './util';
+import { type GuestPlace, label, long, readerHref, seriesHref, store, t, tx, icon } from './util';
 
 export { default as PanelsWidget } from './widgets/Widget';
 
@@ -78,7 +78,8 @@ app.initializers.add('ernestdefoe-panels', () => {
   extend('flarum/forum/components/IndexSidebar', 'navItems', function (items: ItemList<Mithril.Children>) {
     if (!app.forum.attribute('panelsCanView')) return;
     items.add('panels', LinkButton.component({ href: app.route('panels'), icon: 'fas fa-book-open' }, label()), 85);
-    if (app.session.user) items.add('panelsLibrary', LinkButton.component({ href: app.route('panels.library'), icon: 'fas fa-bookmark' }, t('library.title')), 84);
+    if (app.session.user)
+      items.add('panelsLibrary', LinkButton.component({ href: app.route('panels.library'), icon: 'fas fa-bookmark' }, t('library.title')), 84);
   });
 
   // The optional stock spot: New chapters in the index sidebar, for forums without a widget host.

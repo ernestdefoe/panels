@@ -53,7 +53,10 @@ export default class SeriesModal extends FormModal<Attrs> {
       this.editors = s.editors.map((e) => e.username).join(', ');
       this.modeTouched = true;
     }
-    get('genres', {}, true).then((r) => ((this.genres = r.data), m.redraw()), () => {});
+    get('genres', {}, true).then(
+      (r) => ((this.genres = r.data), m.redraw()),
+      () => {}
+    );
   }
 
   className() {
@@ -87,16 +90,36 @@ export default class SeriesModal extends FormModal<Attrs> {
         <div className="Form">
           <div className="Form-group">
             <label for="panels-title">{t('form.title')}</label>
-            <input id="panels-title" className="FormControl" maxlength={150} required value={this.title_} oninput={(e: InputEvent) => (this.title_ = (e.target as HTMLInputElement).value)} />
+            <input
+              id="panels-title"
+              className="FormControl"
+              maxlength={150}
+              required
+              value={this.title_}
+              oninput={(e: InputEvent) => (this.title_ = (e.target as HTMLInputElement).value)}
+            />
           </div>
           <div className="Form-group">
             <label for="panels-alt">{t('form.alt_titles')}</label>
-            <textarea id="panels-alt" className="FormControl" rows={2} value={this.altTitles} oninput={(e: InputEvent) => (this.altTitles = (e.target as HTMLTextAreaElement).value)} />
+            <textarea
+              id="panels-alt"
+              className="FormControl"
+              rows={2}
+              value={this.altTitles}
+              oninput={(e: InputEvent) => (this.altTitles = (e.target as HTMLTextAreaElement).value)}
+            />
             <p className="helpText">{t('form.alt_titles_help')}</p>
           </div>
           <div className="Form-group">
             <label for="panels-desc">{t('form.description')}</label>
-            <textarea id="panels-desc" className="FormControl" rows={4} maxlength={5000} value={this.description} oninput={(e: InputEvent) => (this.description = (e.target as HTMLTextAreaElement).value)} />
+            <textarea
+              id="panels-desc"
+              className="FormControl"
+              rows={4}
+              maxlength={5000}
+              value={this.description}
+              oninput={(e: InputEvent) => (this.description = (e.target as HTMLTextAreaElement).value)}
+            />
           </div>
           <div className="PanelsForm-row">
             <div className="Form-group">
@@ -141,7 +164,11 @@ export default class SeriesModal extends FormModal<Attrs> {
                 <div className="Form-group">
                   <label for={`panels-field-${f.id}`}>{f.name}</label>
                   {f.type === 'select' ? (
-                    <select id={`panels-field-${f.id}`} className="FormControl" onchange={(e: Event) => (this.fields[String(f.id)] = (e.target as HTMLSelectElement).value)}>
+                    <select
+                      id={`panels-field-${f.id}`}
+                      className="FormControl"
+                      onchange={(e: Event) => (this.fields[String(f.id)] = (e.target as HTMLSelectElement).value)}
+                    >
                       <option value="">—</option>
                       {(f.options || []).map((o) => (
                         <option value={o} selected={this.fields[String(f.id)] === o}>
@@ -165,13 +192,25 @@ export default class SeriesModal extends FormModal<Attrs> {
           ) : null}
           <div className="Form-group">
             <label for="panels-cover">{t('form.cover')}</label>
-            <input id="panels-cover" className="FormControl" type="file" accept="image/jpeg,image/png,image/webp,image/avif" onchange={(e: Event) => (this.cover = (e.target as HTMLInputElement).files?.[0] || null)} />
+            <input
+              id="panels-cover"
+              className="FormControl"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              onchange={(e: Event) => (this.cover = (e.target as HTMLInputElement).files?.[0] || null)}
+            />
             <p className="helpText">{t('form.cover_help')}</p>
           </div>
           {!this.attrs.series || this.attrs.series.canModerate || this.attrs.series.owner?.username === app.session.user?.username() ? (
             <div className="Form-group">
               <label for="panels-editors">{t('form.editors')}</label>
-              <input id="panels-editors" className="FormControl" value={this.editors} placeholder={tx('form.editors_placeholder')} oninput={(e: InputEvent) => (this.editors = (e.target as HTMLInputElement).value)} />
+              <input
+                id="panels-editors"
+                className="FormControl"
+                value={this.editors}
+                placeholder={tx('form.editors_placeholder')}
+                oninput={(e: InputEvent) => (this.editors = (e.target as HTMLInputElement).value)}
+              />
             </div>
           ) : null}
           <div className="Form-group">
@@ -197,7 +236,10 @@ export default class SeriesModal extends FormModal<Attrs> {
       contentRating: this.contentRating,
       genres: this.genreIds,
       fields: this.fields,
-      editors: this.editors.split(',').map((n) => n.trim().replace(/^@/, '')).filter(Boolean),
+      editors: this.editors
+        .split(',')
+        .map((n) => n.trim().replace(/^@/, ''))
+        .filter(Boolean),
     };
     const s = this.attrs.series;
     (s ? send<any>('PATCH', `series/${s.id}`, body) : send<any>('POST', 'series', body))

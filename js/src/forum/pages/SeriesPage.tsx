@@ -5,7 +5,7 @@ import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import humanTime from 'flarum/common/helpers/humanTime';
 import type Mithril from 'mithril';
-import { type SeriesCard, get, label, long, readerHref, send, short, t, tx , icon } from '../util';
+import { type SeriesCard, get, label, long, readerHref, send, short, t, tx, icon } from '../util';
 import { CoverArt, Select, StarPicker, confirmAdult } from './bits';
 import { PageStructure } from './core';
 import { openSeriesModal } from './SeriesModal';
@@ -66,7 +66,11 @@ export default class SeriesPage extends Page {
   }
 
   load(): void {
-    get<{ data: SeriesFull; hasMoreChapters: boolean }>(`series/${encodeURIComponent(m.route.param('slug'))}`, { order: this.asc ? 'asc' : 'desc' }, true)
+    get<{ data: SeriesFull; hasMoreChapters: boolean }>(
+      `series/${encodeURIComponent(m.route.param('slug'))}`,
+      { order: this.asc ? 'asc' : 'desc' },
+      true
+    )
       .then((r) => {
         this.series = r.data;
         this.more = r.hasMoreChapters;
@@ -83,12 +87,14 @@ export default class SeriesPage extends Page {
 
   loadMore(): void {
     const s = this.series!;
-    get<{ data: SeriesFull; hasMoreChapters: boolean }>(`series/${s.slug}`, { order: this.asc ? 'asc' : 'desc', page: this.chapterPage + 1 }).then((r) => {
-      s.chapters = [...s.chapters, ...r.data.chapters];
-      this.more = r.hasMoreChapters;
-      this.chapterPage++;
-      m.redraw();
-    });
+    get<{ data: SeriesFull; hasMoreChapters: boolean }>(`series/${s.slug}`, { order: this.asc ? 'asc' : 'desc', page: this.chapterPage + 1 }).then(
+      (r) => {
+        s.chapters = [...s.chapters, ...r.data.chapters];
+        this.more = r.hasMoreChapters;
+        this.chapterPage++;
+        m.redraw();
+      }
+    );
   }
 
   view() {
@@ -119,7 +125,8 @@ export default class SeriesPage extends Page {
 
   /** Where "Start reading" or "Continue" goes. */
   target(s: SeriesFull): { number: string; label: string } | null {
-    if (s.progress) return { number: s.progress.number, label: tx('continue_at', { chapter: short(s.format, s.progress.number), page: s.progress.page }) };
+    if (s.progress)
+      return { number: s.progress.number, label: tx('continue_at', { chapter: short(s.format, s.progress.number), page: s.progress.page }) };
     const readable = s.chapters.filter((c) => c.state === 'published' && !c.scheduled);
     const first = readable.reduce<ChapterRow | null>((min, c) => (!min || parseFloat(c.number) < parseFloat(min.number) ? c : min), null);
     return first ? { number: first.number, label: tx('start_reading') } : null;
@@ -309,7 +316,9 @@ export default class SeriesPage extends Page {
   row(s: SeriesFull, c: ChapterRow): Mithril.Children {
     const isNew = !c.read && !!c.publishedAt && Date.now() - Date.parse(c.publishedAt) < 7 * 86400 * 1000 && c.state === 'published';
     const href =
-      c.state === 'draft' || c.state === 'pending' || c.state === 'held' ? app.route('panels.edit', { slug: s.slug, id: c.id }) : readerHref(s.slug, c.number);
+      c.state === 'draft' || c.state === 'pending' || c.state === 'held'
+        ? app.route('panels.edit', { slug: s.slug, id: c.id })
+        : readerHref(s.slug, c.number);
     const progress = s.progress && String(s.progress.chapter_id) === String(c.id) ? s.progress : null;
     return (
       <li className={'PanelsChapter' + (c.read ? ' is-read' : '') + (isNew ? ' is-new' : '')}>
@@ -328,9 +337,17 @@ export default class SeriesPage extends Page {
             <strong>{long(s.format, c.number)}</strong>
             {c.title ? <span className="PanelsChapter-title">{c.title}</span> : null}
             {isNew ? <span className="PanelsBadge PanelsBadge--new">{t('new')}</span> : null}
-            {c.locked ? <span className="PanelsBadge PanelsBadge--soft">{icon('fas fa-lock')} {c.access === 'early' ? t('early_access') : t('paid')}</span> : null}
+            {c.locked ? (
+              <span className="PanelsBadge PanelsBadge--soft">
+                {icon('fas fa-lock')} {c.access === 'early' ? t('early_access') : t('paid')}
+              </span>
+            ) : null}
             {c.state !== 'published' ? <span className="PanelsBadge PanelsBadge--soft">{t(`state.${c.state}`)}</span> : null}
-            {c.scheduled ? <span className="PanelsBadge PanelsBadge--soft">{icon('far fa-clock')} {t('scheduled_for', { date: new Date(c.publishedAt!).toLocaleString() })}</span> : null}
+            {c.scheduled ? (
+              <span className="PanelsBadge PanelsBadge--soft">
+                {icon('far fa-clock')} {t('scheduled_for', { date: new Date(c.publishedAt!).toLocaleString() })}
+              </span>
+            ) : null}
           </span>
           <span className="PanelsChapter-meta">
             {c.source === 'external' ? t('external_short') : t('pages', { count: c.pageCount })}
@@ -344,7 +361,11 @@ export default class SeriesPage extends Page {
           ) : null}
         </Link>
         {c.discussionId ? (
-          <Link className="PanelsChapter-replies" href={app.route('discussion', { id: c.discussionId })} aria-label={tx('replies', { count: c.replies })}>
+          <Link
+            className="PanelsChapter-replies"
+            href={app.route('discussion', { id: c.discussionId })}
+            aria-label={tx('replies', { count: c.replies })}
+          >
             {icon('far fa-comment')} {c.replies}
           </Link>
         ) : null}

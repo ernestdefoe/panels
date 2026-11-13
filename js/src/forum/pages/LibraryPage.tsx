@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import type Mithril from 'mithril';
-import { type SeriesCard, get, label, t, tx , icon } from '../util';
+import { type SeriesCard, get, label, t, tx, icon } from '../util';
 import { ContinueCard, Select, Tile } from './bits';
 import { IndexSidebar, PageStructure } from './core';
 import { openSeriesModal } from './SeriesModal';
@@ -57,9 +57,25 @@ export default class LibraryPage extends Page {
     }
 
     if (!this.shelfMode) {
-      get('genres', {}, true).then((r) => (this.genres = r.data)).then(() => m.redraw(), () => {});
-      get('feed', { kind: 'stats' }, true).then((r) => (this.stats = r.data)).then(() => m.redraw(), () => {});
-      if (app.session.user) get('feed', { kind: 'continue', limit: 3 }, true).then((r) => (this.cont = r.data)).then(() => m.redraw(), () => {});
+      get('genres', {}, true)
+        .then((r) => (this.genres = r.data))
+        .then(
+          () => m.redraw(),
+          () => {}
+        );
+      get('feed', { kind: 'stats' }, true)
+        .then((r) => (this.stats = r.data))
+        .then(
+          () => m.redraw(),
+          () => {}
+        );
+      if (app.session.user)
+        get('feed', { kind: 'continue', limit: 3 }, true)
+          .then((r) => (this.cont = r.data))
+          .then(
+            () => m.redraw(),
+            () => {}
+          );
     }
     this.load(1);
   }
@@ -128,7 +144,9 @@ export default class LibraryPage extends Page {
               ))}
             </div>
           ) : this.loading ? null : (
-            <p className="PanelsEmpty">{this.shelfMode ? t('library.empty') : this.q || this.genre || this.format ? t('empty_filtered') : t('empty')}</p>
+            <p className="PanelsEmpty">
+              {this.shelfMode ? t('library.empty') : this.q || this.genre || this.format ? t('empty_filtered') : t('empty')}
+            </p>
           )}
           {this.loading ? <LoadingIndicator /> : null}
           {this.more && !this.loading ? (
@@ -152,7 +170,9 @@ export default class LibraryPage extends Page {
       <header className="PanelsLibrary-head">
         <div>
           <h1>{this.shelfMode ? t('library.title') : label()}</h1>
-          {!this.shelfMode && this.stats ? <p className="PanelsMuted">{t('stats_line', { series: this.stats.series, chapters: this.stats.chapters })}</p> : null}
+          {!this.shelfMode && this.stats ? (
+            <p className="PanelsMuted">{t('stats_line', { series: this.stats.series, chapters: this.stats.chapters })}</p>
+          ) : null}
         </div>
         <div className="PanelsLibrary-actions">
           {app.forum.attribute('panelsCanModerate') ? (
@@ -194,7 +214,12 @@ export default class LibraryPage extends Page {
         </label>
         <div className="PanelsChips" role="group" aria-label={tx('format_label')}>
           {['', ...FORMATS].map((f) => (
-            <button type="button" className={'PanelsChip' + (this.format === f ? ' is-on' : '')} aria-pressed={this.format === f ? 'true' : 'false'} onclick={() => this.set('format', f)}>
+            <button
+              type="button"
+              className={'PanelsChip' + (this.format === f ? ' is-on' : '')}
+              aria-pressed={this.format === f ? 'true' : 'false'}
+              onclick={() => this.set('format', f)}
+            >
               {f ? tx(`format.${f}`) : tx('all')}
             </button>
           ))}
@@ -203,7 +228,10 @@ export default class LibraryPage extends Page {
           <Select
             label={tx('status_label')}
             value={this.status}
-            options={[['', tx('status.any')], ...['ongoing', 'completed', 'hiatus', 'cancelled'].map((s) => [s, tx(`status.${s}`)] as [string, string])]}
+            options={[
+              ['', tx('status.any')],
+              ...['ongoing', 'completed', 'hiatus', 'cancelled'].map((s) => [s, tx(`status.${s}`)] as [string, string]),
+            ]}
             onchange={(v: string) => this.set('status', v)}
           />
           <Select
@@ -212,7 +240,12 @@ export default class LibraryPage extends Page {
             options={[['', tx('genre_any')], ...this.genres.map((g) => [g.slug, g.name] as [string, string])]}
             onchange={(v: string) => this.set('genre', v)}
           />
-          <Select label={tx('sort_label')} value={this.sort} options={SORTS.map((s) => [s, tx(`sort.${s}`)] as [string, string])} onchange={(v: string) => this.set('sort', v)} />
+          <Select
+            label={tx('sort_label')}
+            value={this.sort}
+            options={SORTS.map((s) => [s, tx(`sort.${s}`)] as [string, string])}
+            onchange={(v: string) => this.set('sort', v)}
+          />
         </div>
       </div>
     );
@@ -222,7 +255,13 @@ export default class LibraryPage extends Page {
     return (
       <div className="PanelsChips PanelsChips--tabs" role="tablist">
         {SHELVES.map((s) => (
-          <button type="button" role="tab" aria-selected={this.shelf === s ? 'true' : 'false'} className={'PanelsChip' + (this.shelf === s ? ' is-on' : '')} onclick={() => this.set('shelf', s)}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={this.shelf === s ? 'true' : 'false'}
+            className={'PanelsChip' + (this.shelf === s ? ' is-on' : '')}
+            onclick={() => this.set('shelf', s)}
+          >
             {t(`library.${s}`)}
           </button>
         ))}
