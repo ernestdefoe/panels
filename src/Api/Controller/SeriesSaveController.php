@@ -124,10 +124,6 @@ class SeriesSaveController extends Controller
         if (array_key_exists('fields', $data)) {
             $series->fields = $this->settings->cleanFields((array) $data['fields']) ?: null;
         }
-        if (array_key_exists('tagId', $data)) {
-            $tag = (int) $data['tagId'];
-            $series->tag_id = $tag > 0 && $this->db->getSchemaBuilder()->hasTable('tags') && $this->db->table('tags')->where('id', $tag)->exists() ? $tag : null;
-        }
     }
 
     /** @param array<string, mixed> $data */
@@ -141,6 +137,11 @@ class SeriesSaveController extends Controller
         }
         if (array_key_exists('isFeatured', $data)) {
             $series->is_featured = (bool) $data['isFeatured'];
+        }
+        // 🚨 Staff only: chapter discussions go into this tag, whoever may post there.
+        if (array_key_exists('tagId', $data)) {
+            $tag = (int) $data['tagId'];
+            $series->tag_id = $tag > 0 && $this->db->getSchemaBuilder()->hasTable('tags') && $this->db->table('tags')->where('id', $tag)->exists() ? $tag : null;
         }
         if (array_key_exists('isRemoved', $data)) {
             $series->removed_at = $data['isRemoved'] ? ($series->removed_at ?? Carbon::now()) : null;

@@ -73,7 +73,18 @@ class PagesController extends Controller
                 throw new Refused('ernestdefoe-panels.api.refused.incomplete');
             }
 
-            return $this->json(['import' => $this->import($this->pages->startImport($chapter, $file, $actor))], 201);
+            $import = $this->pages->startImport($chapter, $file, $actor);
+            if (! $this->access->isStaff($actor)) {
+                try {
+                    $this->pages->throttle((int) $actor->id, (int) $import->total);
+                } catch (Refused $e) {
+                    $import->state = 'failed';
+                    $import->save();
+                    throw $e;
+                }
+            }
+
+            return $this->json(['import' => $this->import($import)], 201);
         }
 
         $saved = [];
@@ -90,6 +101,9 @@ class PagesController extends Controller
             try {
                 if ($file->getError() !== UPLOAD_ERR_OK) {
                     throw new Refused('ernestdefoe-panels.api.refused.incomplete');
+                }
+                if (! $this->access->isStaff($actor)) {
+                    $this->pages->throttle((int) $actor->id);
                 }
                 foreach ($this->pages->add($chapter, (string) $file->getStream()->getContents(), $name) as $page) {
                     $saved[] = ['id' => (int) $page->id, 'position' => (int) $page->position, 'segment' => (int) $page->segment, 'name' => $name];

@@ -24,7 +24,8 @@ class PanelsTest extends TestCase
     {
         parent::setUp();
 
-        $this->extension('ernestdefoe-panels');
+        $this->extension('flarum-tags', 'ernestdefoe-panels');
+        $this->setting('ernestdefoe-panels.tag_id', '2');
 
         $now = Carbon::now();
         $past = $now->copy()->subDay();
@@ -45,6 +46,10 @@ class PanelsTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => 10, 'permission' => 'panels.create'],
+            ],
+            'tags' => [
+                ['id' => 1, 'name' => 'Staff', 'slug' => 'staff', 'is_restricted' => 1, 'position' => 0],
+                ['id' => 2, 'name' => 'Comics', 'slug' => 'comics', 'is_restricted' => 0, 'position' => 1],
             ],
             'panel_series' => [
                 $this->series(1, 'ink', 'all', ['cover_key' => 's/1/cover-aaaaaaaaaaaaaaaa-480.webp']),
@@ -253,12 +258,13 @@ class PanelsTest extends TestCase
         $discussion = $json['data']['discussionId'];
         $this->assertNotNull($discussion);
 
-        [$status, $json, $raw] = $this->call('GET', "/api/discussions/$discussion?include=firstPost", null);
+        [$status, $json, $raw] = $this->call("GET", "/api/discussions/$discussion?include=firstPost", null);
         $this->assertSame(200, $status);
         $this->assertStringStartsWith('Mine · ', $json['data']['attributes']['title']);
         $this->assertSame('1', $json['data']['attributes']['panelsChapter']['chapter']['number']);
         $this->assertStringNotContainsString('<script>', $raw);
         $this->assertStringNotContainsString('cccccccccccc', $raw, 'no page image in the discussion');
+        $this->assertSame([2], resolve(ConnectionInterface::class)->table('discussion_tag')->where('discussion_id', $discussion)->pluck('tag_id')->map(fn ($id) => (int) $id)->all(), 'in the Panels tag');
     }
 
     #[Test]
@@ -310,5 +316,37 @@ class PanelsTest extends TestCase
         $this->assertSame(201, $status);
         $this->assertSame('library-series', $json['data']['slug'], 'a reserved word is never a slug');
         $this->assertSame('vertical', $json['data']['readingMode']);
+    }
+
+    #[Test]
+    public function downloads_are_never_a_get(): void
+    {
+        $this->app();
+        resolve(\Flarum\Settings\SettingsRepositoryInterface::class)->set('ernestdefoe-panels.download_limits', '{"3":5}');
+        $response = $this->send($this->request('GET', '/api/panels/chapters/1/download', ['authenticatedAs' => self::ADULT]));
+        $this->assertContains($response->getStatusCode(), [404, 405], 'an <img> must not be able to spend the allowance');
+    }
+
+    #[Test]
+    public function members_are_limited_to_the_pages_per_hour(): void
+    {
+        $this->app();
+        resolve(\Flarum\Settings\SettingsRepositoryInterface::class)->set('ernestdefoe-panels.pages_per_hour', 3);
+        $pages = resolve(\ErnestDefoe\Panels\Pages::class);
+        $pages->throttle(self::CREATOR, 2);
+        $pages->throttle(self::CREATOR);
+        $this->expectException(\ErnestDefoe\Panels\Media\Refused::class);
+        $pages->throttle(self::CREATOR);
+    }
+
+    #[Test]
+    public function only_staff_choose_the_series_tag(): void
+    {
+        $this->call('PATCH', '/api/panels/series/4', self::CREATOR, ['tagId' => 1, 'title' => 'Mine']);
+        $this->app();
+        $this->assertNull(resolve(ConnectionInterface::class)->table('panel_series')->where('id', 4)->value('tag_id'), 'a creator can\'t aim discussions at a staff tag');
+
+        $this->call('PATCH', '/api/panels/series/4', self::MOD, ['tagId' => 1]);
+        $this->assertSame(1, (int) resolve(ConnectionInterface::class)->table('panel_series')->where('id', 4)->value('tag_id'));
     }
 }

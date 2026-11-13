@@ -792,10 +792,14 @@ export default class ReaderPage extends Page {
           {choice(this.prefs.bg === 'black', t('reader.bg_black'), () => this.setPref('bg', 'black'))}
         </div>
         {d.series.canDownload ? (
-          <a className="Button PanelsReader-download" href={api(`chapters/${d.chapter.id}/download`)} download>
-            {icon('fas fa-download', { className: 'Button-icon' })}
-            <span className="Button-label">{t('reader.download')}</span>
-          </a>
+          // A form post (with the CSRF token): a GET link could be set off by any image on any page.
+          <form method="post" action={api(`chapters/${d.chapter.id}/download`)} className="PanelsReader-download">
+            <input type="hidden" name="csrfToken" value={app.session.csrfToken || ''} />
+            <button type="submit" className="Button">
+              {icon('fas fa-download', { className: 'Button-icon' })}
+              <span className="Button-label">{t('reader.download')}</span>
+            </button>
+          </form>
         ) : null}
         {d.series.canEdit ? (
           <Link className="Button" href={app.route('panels.edit', { slug: d.series.slug, id: d.chapter.id })}>

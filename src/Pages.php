@@ -13,6 +13,8 @@ use ErnestDefoe\Panels\Model\Page;
 use ErnestDefoe\Panels\Model\Series;
 use Flarum\Foundation\Paths;
 use Flarum\User\User;
+use Illuminate\Contracts\Cache\Repository as Cache;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\ConnectionInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use ZipArchive;
@@ -33,7 +35,24 @@ class Pages
         private readonly Access $access,
         private readonly Paths $paths,
         private readonly ConnectionInterface $db,
+        private readonly Cache $cache,
+        private readonly SettingsRepositoryInterface $settings,
     ) {
+    }
+
+    /**
+     * Pages a member may add in an hour (the admin's limit, 600 by default). Counted per hour
+     * in the cache; staff aren't limited.
+     */
+    public function throttle(int $userId, int $pages = 1): void
+    {
+        $limit = (int) ($this->settings->get('ernestdefoe-panels.pages_per_hour') ?: 600);
+        $key = 'ernestdefoe-panels.pages.'.$userId.'.'.date('YmdH');
+        $this->cache->add($key, 0, 3700);
+        if ((int) $this->cache->get($key) + $pages > $limit) {
+            throw new Refused('ernestdefoe-panels.api.refused.slow_down_pages', ['limit' => $limit]);
+        }
+        $this->cache->increment($key, $pages);
     }
 
     /**

@@ -380,6 +380,8 @@ ernestdefoe-panels:
       max_pages: Most pages in a chapter
       max_chapter_mb: Largest chapter, unpacked (MB)
       max_archive_mb: Largest .cbz / .zip upload (MB)
+      pages_per_hour: Pages a member may add in an hour
+      pages_per_hour_help: "Staff aren't limited."
       quality: WebP quality (40–95)
       strip_width: Widest vertical strip (px)
       stock_sidebar: New chapters in the index sidebar
@@ -477,6 +479,7 @@ ernestdefoe-panels:
       rating: "Ratings are 1 to 5 stars."
       download_limit: "You've reached today's limit of {limit} downloads."
       slow_down: "You've sent several claims in the last hour. Try again later."
+      slow_down_pages: "You've added {limit} pages in the last hour, the most allowed. Try again later."
       claim_target: "We couldn't find what this claim is about."
       claim_incomplete: "Fill in every field and tick both statements."
       claim_action: "Unknown action."

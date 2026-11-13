@@ -20,7 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use ZipArchive;
 
 /**
- * GET /api/panels/chapters/{id}/download: the chapter as a .cbz, built from the largest stored
+ * POST /api/panels/chapters/{id}/download (a form post: a GET would let any <img> spend the
+ * member's daily allowance): the chapter as a .cbz, built from the largest stored
  * copies (watermarked when the forum marks pages). Off unless a group has panels.download, and
  * then limited per day by the admin's per-group allowance.
  */
