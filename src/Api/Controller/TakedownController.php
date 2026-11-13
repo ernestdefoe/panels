@@ -37,6 +37,9 @@ class TakedownController extends Controller
 {
     public const PER_HOUR = 5;
 
+    /** @var array<int, array{0: ?Series, 1: ?Chapter}> */
+    private array $targets = [];
+
     public function __construct(
         private readonly Access $access,
         private readonly Publisher $publisher,
@@ -215,13 +218,13 @@ class TakedownController extends Controller
     /** @return array{0: ?Series, 1: ?Chapter} */
     private function target(Takedown $takedown): array
     {
-        if ($takedown->target_type === 'chapter') {
-            $chapter = Chapter::query()->find($takedown->target_id);
+        return $this->targets[(int) $takedown->id] ??= $takedown->target_type === 'chapter'
+            ? (function () use ($takedown) {
+                $chapter = Chapter::query()->with('series')->find($takedown->target_id);
 
-            return [$chapter?->series, $chapter];
-        }
-
-        return [Series::query()->find($takedown->target_id), null];
+                return [$chapter?->series, $chapter];
+            })()
+            : [Series::query()->find($takedown->target_id), null];
     }
 
     private function label(Takedown $takedown): string

@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels\Api;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Access;
 use ErnestDefoe\Panels\Media\Store;
 use ErnestDefoe\Panels\Model\Chapter;
@@ -9,6 +10,7 @@ use ErnestDefoe\Panels\Model\Series;
 use ErnestDefoe\Panels\Settings;
 use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 /**
@@ -38,6 +40,7 @@ class Presenter
      */
     public function prime(Collection $series, User $actor): void
     {
+        $series = $series instanceof EloquentCollection ? $series : new EloquentCollection($series->all());
         $series->loadMissing(['genres', 'latestChapter']);
         $ids = $series->pluck('id')->map(fn ($id) => (int) $id)->all();
         $this->progress = [];
@@ -64,7 +67,7 @@ class Presenter
             })
             ->whereIn('panel_chapters.series_id', $ids)
             ->where('panel_chapters.state', 'published')->whereNull('panel_chapters.removed_at')
-            ->where('panel_chapters.published_at', '<=', now())
+            ->where('panel_chapters.published_at', '<=', Carbon::now())
             ->whereNull('panel_reads.chapter_id')
             ->groupBy('panel_chapters.series_id')
             ->selectRaw($this->db->getQueryGrammar()->wrap('panel_chapters.series_id').' as series_id, COUNT(*) as n')

@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels\Api\Controller;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Access;
 use ErnestDefoe\Panels\Api\Controller;
 use ErnestDefoe\Panels\Api\Presenter;
@@ -115,7 +116,7 @@ class SeriesListController extends Controller
             'title' => $query->orderBy('panel_series.title'),
             'trending' => $query
                 ->leftJoinSub(
-                    $this->db->table('panel_chapter_stats')->where('day', '>=', now()->subDays(7)->toDateString())
+                    $this->db->table('panel_chapter_stats')->where('day', '>=', Carbon::now()->subDays(7)->toDateString())
                         ->groupBy('series_id')->selectRaw($wrap('series_id').' as trend_series, SUM('.$wrap('readers').') as trend_readers'),
                     'trend',
                     'trend.trend_series',

@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Model\Chapter;
 use ErnestDefoe\Panels\Model\Series;
 use Flarum\Extension\ExtensionManager;
@@ -66,7 +67,7 @@ class Access
         $days = (int) $this->settings->get('ernestdefoe-panels.mature_min_days');
         $posts = (int) $this->settings->get('ernestdefoe-panels.mature_min_posts');
 
-        return ($days <= 0 || ($actor->joined_at && $actor->joined_at->diffInDays(now(), true) >= $days))
+        return ($days <= 0 || ($actor->joined_at && $actor->joined_at->diffInDays(Carbon::now(), true) >= $days))
             && ($posts <= 0 || (int) $actor->comment_count >= $posts);
     }
 
@@ -183,7 +184,7 @@ class Access
         }
 
         $query->where('panel_chapters.state', 'published')
-            ->where('panel_chapters.published_at', '<=', now())
+            ->where('panel_chapters.published_at', '<=', Carbon::now())
             ->whereNull('panel_chapters.removed_at')
             ->whereIn($this->db->raw('COALESCE('.$this->db->getQueryGrammar()->wrap('panel_chapters.content_rating').", 'all')"), $this->listedRatings($actor));
     }

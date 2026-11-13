@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Media\Archive;
 use ErnestDefoe\Panels\Media\Pipeline;
 use ErnestDefoe\Panels\Media\Refused;
@@ -307,10 +308,10 @@ class Pages
     /** Archives left behind by closed tabs. */
     public function purgeStaleImports(): void
     {
-        Import::query()->where('updated_at', '<', now()->subDay())->get()->each(function (Import $import) {
+        Import::query()->where('updated_at', '<', Carbon::now()->subDay())->get()->each(function (Import $import) {
             @unlink($this->tempPath($import->temp_key));
             $import->delete();
         });
-        Import::query()->whereIn('state', ['done', 'failed'])->where('updated_at', '<', now()->subHour())->delete();
+        Import::query()->whereIn('state', ['done', 'failed'])->where('updated_at', '<', Carbon::now()->subHour())->delete();
     }
 }

@@ -54,7 +54,6 @@ class ImageController implements RequestHandlerInterface
         $headers = [
             'Content-Type' => str_ends_with($path, '.webp') ? 'image/webp' : 'image/jpeg',
             'Cache-Control' => 'private, max-age=600',
-            'X-Content-Type-Options' => 'nosniff',
             'Content-Security-Policy' => "default-src 'none'",
             'Referrer-Policy' => 'same-origin',
         ];

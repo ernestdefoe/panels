@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels\Api\Controller;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Access;
 use ErnestDefoe\Panels\Api\Controller;
 use ErnestDefoe\Panels\Api\Presenter;
@@ -60,7 +61,7 @@ class FeedController extends Controller
         $chapters = Chapter::query()
             ->whereIn('series_id', $visible)
             ->where('state', 'published')->whereNull('removed_at')
-            ->where('published_at', '<=', now())
+            ->where('published_at', '<=', Carbon::now())
             ->whereIn($this->db->raw('COALESCE('.$this->db->getQueryGrammar()->wrap('content_rating').", 'all')"), $this->access->listedRatings($actor))
             ->orderByDesc('published_at')->limit($limit)->get();
         $series = Series::query()->whereIn('id', $chapters->pluck('series_id')->unique())->get()->keyBy('id');
@@ -102,14 +103,14 @@ class FeedController extends Controller
                 ->when(! $explicit, fn ($q) => $q->where('content_rating', '!=', 'explicit'));
             $ids = (clone $series)->pluck('id');
             $chapters = $this->db->table('panel_chapters')->whereIn('series_id', $ids)->where('state', 'published')
-                ->whereNull('removed_at')->where('published_at', '<=', now());
+                ->whereNull('removed_at')->where('published_at', '<=', Carbon::now());
 
             return [
                 'series' => $ids->count(),
                 'chapters' => (clone $chapters)->count(),
                 'pages' => (int) (clone $chapters)->sum('page_count'),
                 'readers' => (int) $this->db->table('panel_chapter_stats')->whereIn('series_id', $ids)
-                    ->where('day', '>=', now()->subDays(7)->toDateString())->sum('readers'),
+                    ->where('day', '>=', Carbon::now()->subDays(7)->toDateString())->sum('readers'),
             ];
         });
     }

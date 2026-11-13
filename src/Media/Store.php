@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels\Media;
 
+use Carbon\Carbon;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -101,7 +102,7 @@ class Store
     {
         $disk = $this->disk(false);
         if ($disk instanceof Cloud && method_exists($disk, 'temporaryUrl') && $this->isRemote($disk)) {
-            return $disk->temporaryUrl($path, now()->addSeconds(self::TOKEN_TTL));
+            return $disk->temporaryUrl($path, Carbon::now()->addSeconds(self::TOKEN_TTL));
         }
 
         $payload = $this->b64(json_encode([$path, $userId, time() + self::TOKEN_TTL], JSON_UNESCAPED_SLASHES) ?: '');

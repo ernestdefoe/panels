@@ -178,23 +178,24 @@ class Publisher
     {
         if ($this->cache->add('ernestdefoe-panels.tick', 1, 60)) {
             try {
-                $this->tick();
+                // A small batch: this runs inside someone's page view.
+                $this->tick(5);
             } catch (\Throwable $e) {
                 $this->log->error('[panels] tick failed: '.$e->getMessage());
             }
         }
     }
 
-    public function tick(): void
+    public function tick(int $batch = 50): void
     {
         // Scheduled chapters whose time came.
         Chapter::query()->where('state', 'published')->whereNull('discussion_id')->whereNull('removed_at')
-            ->where('published_at', '<=', Carbon::now())->orderBy('published_at')->limit(50)->get()
+            ->where('published_at', '<=', Carbon::now())->orderBy('published_at')->limit($batch)->get()
             ->each(fn (Chapter $c) => $this->launch($c));
 
         // Early access ended: the files can become public.
         Chapter::query()->where('access', 'early')->where('storage', 'private')->where('state', 'published')
-            ->where('early_access_until', '<=', Carbon::now())->limit(50)->get()
+            ->where('early_access_until', '<=', Carbon::now())->limit($batch)->get()
             ->each(fn (Chapter $c) => $this->pages->relocate($c));
 
         $this->notifyReleases();

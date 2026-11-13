@@ -2,6 +2,7 @@
 
 namespace ErnestDefoe\Panels\Scope;
 
+use Carbon\Carbon;
 use ErnestDefoe\Panels\Access;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +40,7 @@ class ChapterDiscussions
                         ->orWhereNotNull('panel_chapters.removed_at')
                         ->orWhereNotNull('panel_series.removed_at')
                         ->orWhere('panel_series.is_hidden', true)
-                        ->orWhere('panel_chapters.published_at', '>', now())
+                        ->orWhere('panel_chapters.published_at', '>', Carbon::now())
                         ->orWhereNotIn('panel_series.content_rating', $ratings)
                         ->orWhere(fn ($r) => $r->whereNotNull('panel_chapters.content_rating')->whereNotIn('panel_chapters.content_rating', $ratings));
                 });
