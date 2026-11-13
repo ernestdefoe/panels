@@ -145,6 +145,8 @@ $extenders = [
 
     (new Extend\Settings())
         ->default('ernestdefoe-panels.label_singular', '')
+        // The same list as Settings::DEFAULT_FIELDS (a literal: no class constants at load time).
+        ->default('ernestdefoe-panels.fields', '[{"id":1,"name":"Author","type":"person"},{"id":2,"name":"Artist","type":"person"},{"id":3,"name":"Country of origin","type":"text"},{"id":4,"name":"Year","type":"year"},{"id":5,"name":"Publisher","type":"text"},{"id":6,"name":"Official site","type":"link"}]')
         ->default('ernestdefoe-panels.label_plural', '')
         ->default('ernestdefoe-panels.tag_id', 0)
         ->default('ernestdefoe-panels.approve_members', true)
